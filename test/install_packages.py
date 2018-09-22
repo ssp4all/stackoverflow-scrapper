@@ -70,8 +70,15 @@ if 'requirements.txt' in os.listdir():
     print("Installing required packages...")
     output, error = runrealtime(
         ["pip3", "install", "-r", "requirements.txt"])
-    print(error)
-    print(output)
+    
+    if len(error) == 0:
+        print('Done, Good to GO!')
+    else:
+        print(toString(error))
+        print()
+        print('Error...Unable to Download package!')
+        sys.exit()
+
 else:
     print('Requirement File not found')
     print()
