@@ -1,6 +1,9 @@
+# Program to be executed First
+
+import os
 import subprocess
 import sys
-import os
+
 
 def toString(byte):
     return byte.decode("utf-8").strip()
@@ -22,36 +25,36 @@ def runrealtime(args):
 
 
 #
-#checking for python version 3
+# checking for python version 3
 #
 print("Checking if Python installed...")
-error, output  = run(["python3", "--version"])
+output, error = run(["python3", "-V"])
 if len(error) != 0:
-    #python 3 is not installed
-    print("install python 3")
-    print()
-    sys.exit(1)
-else:
+    # python 3 is not installed
     print('Python installed')
+    print(toString(output))
+    # sys.exit(1)
+else:
+    print("Python3 not installed!")
     print()
 
 #
-#checking if pip installed
+# checking if pip installed
 #
 print("Checking if pip installed...")
-output, error = run(["pip3", "--version"])
+output, error = run(["pip3", "-V"])
 
 if len(error) != 0:
-    #pip not installed
+    # pip not installed
     print("pip not installed")
     print()
 else:
-    #pip is installed. proceed further.
+    # pip is installed. proceed further.
     print("pip is installed")
     print()
 
 #
-#Upgrade setuptools and wheel
+# Upgrade setuptools and wheel
 #
 print("upgrading setuptools and wheel...")
 output, error = runrealtime(
@@ -70,7 +73,7 @@ if 'requirements.txt' in os.listdir():
     print("Installing required packages...")
     output, error = runrealtime(
         ["pip3", "install", "-r", "requirements.txt"])
-    
+
     if len(error) == 0:
         print('Done, Good to GO!')
     else:
