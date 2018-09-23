@@ -2,4 +2,3 @@ urwid
 regex
 BeautifulSoup4
 requests
-
