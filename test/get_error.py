@@ -1,5 +1,7 @@
 # This file will extract error from file passed as extension
 
+import sys
+import os
 ########################################
 # Get file type by knowing its extension
 ########################################
@@ -15,7 +17,7 @@ def get_language(file_path):
     elif file_path.endswith(".class"):
         return "java"
     else:
-        return ''#Unknown filetype
+        return ' '#Unknown filetype
 
 
 ########################################
@@ -23,4 +25,52 @@ def get_language(file_path):
 ########################################
 def get_error_message():
     pass
+
+
+def print_help():
+    print('Help --> Intelligent-Codemate')
+
+########################################
+# Accept file
+########################################
+def main():
+    if len(sys.argv) == 1 or sys.argv[1].lower() == '-h':
+        print_help()
+    elif sys.argv[1].lower() == '-q' or sys.argv[1].lower() == '--query':
+        query = ' '.join(sys.argv[2:])
+        print(query)
+        # search_results, captcha = seach_stackoverflow(query)
+
+        # if search_results != []:
+        #     if captcha:
+        #         sys.stdout.write("\n Sorry, Try again Later")
+        #         return
+        #     else:
+        #         return #currently Do nothing
+    else:
+        language = get_language(sys.argv[1].lower())
+        print(language)
+        if language == ' ':
+            sys.stdout.write("\nSorry, Unknown File type...")
+            print()
+
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
