@@ -83,7 +83,7 @@ if 'requirements.txt' in os.listdir():
         sys.exit()
 
 else:
-    print('Requirement File not found')
+    print('Requirement File not found - Check directory in which you are running!')
     print()
     print('Incomplete Requirements...Exiting!')
     sys.exit(1)
