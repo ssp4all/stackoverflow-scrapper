@@ -25,7 +25,7 @@ def runrealtime(args):
         print(output)
     return process.communicate()
 
-print("\nChecking for the error in testing file...")
+print("Checking for the error in testing file...")
 output, error = runrealtime(["python", "buggy-file.py"])
 
 if len(error) == 0:
@@ -33,10 +33,10 @@ if len(error) == 0:
 else:
     err = toString(error)
 
-    er = re.search(
-        r'Traceback \(most recent call last\):\n(?:[ ]+.*\n)*(\w+: .*)', err).groups()
-    # print(error)
-    print(toString(er))
-    print()
+    # er = re.search(
+    #     r'Traceback \(most recent call last\):\n(?:[ ]+.*\n)*(\w+: .*)', err).groups()
+    # # print(error)
+    # print(toString(er))
+    print(err)
     print('Error...Unable to run file!')
     sys.exit()
