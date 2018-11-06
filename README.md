@@ -2,7 +2,7 @@
 
 <img style="float: right;" src="logo.jpg">
 
-A python tool to scrape Stack Overflow site and show possible solution to the error given by program on compiling.
+A python tool to scrape website and to show optmial solution to the error given by program on compiling.
 
 # Work Done 
 * Check for if python(3.0+) and its requirements are installed or not.
