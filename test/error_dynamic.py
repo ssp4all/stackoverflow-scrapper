@@ -33,10 +33,9 @@ if len(error) == 0:
 else:
     err = toString(error)
 
-    # er = re.search(
-    #     r'Traceback \(most recent call last\):\n(?:[ ]+.*\n)*(\w+: .*)', err).groups()
+    er = re.search('\n(?:[ ]+.*\n)*(\w+: .*)', err).groups()
     # # print(error)
     # print(toString(er))
-    print(err)
+    print(er[0])    #To get first element of tuple consists of errors
     print('Error...Unable to run file!')
     sys.exit()
