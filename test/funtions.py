@@ -2,7 +2,6 @@ import re
 import random
 import subprocess
 import sys
-import os
 
 # from install_packages import toString, runrealtime
 # import install_packages
@@ -21,21 +20,9 @@ def run(args):
 def runrealtime(args):
     process = subprocess.Popen(
         args, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    
     while process.poll() is None:
         output = process.stdout.readline().decode("utf-8").strip()
         print(output)
+
     return process.communicate()
-
-print("Checking for the error in testing file...")
-output, error = runrealtime(["python", os.path.join(,"buggy-file.py")]) #check directory
-
-if len(error) == 0:
-    print('Done, Good to GO!')
-else:
-    err = toString(error)
-    er = re.search(
-        '\n(?:[ ]+.*\n)*(\w+: .*)', err).groups()
-    value = er[0]  # To get first element of tuple consists of errors
-    print(value)    
-    print('Error...Unable to run file!')
-    # sys.exit()

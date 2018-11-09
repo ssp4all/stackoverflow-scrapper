@@ -2,7 +2,9 @@
 
 import sys
 import os
+import re
 from scrape import get_search_results
+from funtions import runrealtime, toString, run
 ########################################
 # Get file type by knowing its extension
 ########################################
@@ -25,20 +27,30 @@ def get_language(file_path):
 ########################################
 # Extract error
 ########################################
-def get_error_message():
-    print("Checking for the error in the testing file...")
-    output, error = runrealtime(["python", "buggy-file.py"])
-    if len(error) == 0:
-        print('Done, Good to GO!')
-    else:
-        err = toString(error)
-        er = re.search('\n(?:[ ]+.*\n)*(\w+: .*)', err).groups()
-        error = er[0]  # To get first element of tuple consists of errors
-        # print(value) 
-        print('Error...Unable to run file!')
-        # sys.exit()          
+def get_error_message(file):
+    if get_language(file) == 'python3':
+        print("Checking for the error in the "+file+"...")
+        output, error = runrealtime(
+            ["python", os.path.join(sys.path[0], file)])
+        if len(error) == 0:
+            print('Done, Good to GO!')
+        else:
+            err = toString(error)
+            er = re.search('\n(?:[ ]+.*\n)*(\w+: .*)', err).groups()
+            error = er[0]  # To get first element of tuple consists of errors
+            # print(value) 
+            print('Error...Unable to run file!')
+            # sys.exit()          
 
-    return error
+        c = input('Do you want to seach web(y/n) :')
+        if c == 'y':
+            get_search_results(error)
+        else:
+            print('Exiting....')
+            exit(1)
+    else:
+        print('Only Python is supported...Exiting')
+        exit(1)
 
 def print_help():
     print('Help --> Intelligent-Codemate')
@@ -72,8 +84,7 @@ def main():
         print(language)
         if language == ' ':
             sys.stdout.write("\nSorry, Unknown File type...")
-            print()
-
+        get_error_message(sys.argv[1].lower())
 
 if __name__ == "__main__":
     main()

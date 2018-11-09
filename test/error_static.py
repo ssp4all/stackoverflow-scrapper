@@ -11,4 +11,4 @@ NameError: name 'hello' is not defined
 error = re.search(
     r'Traceback \(most recent call last\):\n(?:[ ]+.*\n)*(\w+: .*)', sample).groups()
 
-print(error)
+print(error[0])
