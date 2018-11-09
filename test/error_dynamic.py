@@ -34,8 +34,6 @@ else:
     err = toString(error)
 
     er = re.search('\n(?:[ ]+.*\n)*(\w+: .*)', err).groups()
-    # # print(error)
-    # print(toString(er))
-    print(er[0])    #To get first element of tuple consists of errors
-    print('Error...Unable to run file!')
+    value = er[0]  # To get first element of tuple consists of errors
+    print(value)    print('Error...Unable to run file!')
     sys.exit()

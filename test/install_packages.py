@@ -68,11 +68,12 @@ if len(error) != 0:
 #
 print()
 print("Checking for requirement file...")
+path = sys.path[0]+'/requirements.txt' #path for req. file
 
-if 'requirements.txt' in os.listdir():
+if os.path.isfile(path): #check for req. file
     print("Installing required packages...")
     output, error = runrealtime(
-        ["pip3", "install", "-r", "requirements.txt"])
+        ["pip3", "install", "-r", path ])
 
     if len(error) == 0:
         print('Done, Good to GO!')
