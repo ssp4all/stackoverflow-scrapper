@@ -54,7 +54,13 @@ def get_error_message(file):
 
 def print_help():
     print('Help --> Intelligent-Codemate')
-    print('WELCOME to IC')
+    print('WELCOME')
+    print()
+    print('1]   python codemate.py -q what is web-scraping')
+    print()
+    print('2]   python codemate.py your_file.py')
+    print()
+    print('3]   python codemate.py')
 
 
 ########################################
