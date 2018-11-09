@@ -56,8 +56,9 @@ def main():
         query = ' '.join(sys.argv[2:])
         print(query)
 
-        while 
+        # while True:
         get_search_results(query)
+            # print('Do you want to EXIT press ctrl+C')
         # search_results, captcha = seach_stackoverflow(query)
 
         # if search_results != []:
