@@ -2,7 +2,7 @@
 
 import sys
 import os
-import re
+from install_packages import install
 from scrape import get_search_results
 from funtions import runrealtime, toString, run
 ########################################
@@ -68,6 +68,8 @@ def print_help():
 ########################################
 
 def main():
+    
+
     if len(sys.argv) == 1 or sys.argv[1].lower() == '-h':
         print_help()
     elif sys.argv[1].lower() == '-q' or sys.argv[1].lower() == '--query':
