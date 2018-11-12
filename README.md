@@ -21,12 +21,13 @@ A python tool to scrape website and to show optmial solution to the error given 
 * Check for if python(3.0+) and its requirements are installed or not.
 * Scrape site on user request.
 * Regular expression for extracting error from list of error given by program on compiling.
-
+* Extract error from live program.
+* 
 ## To Do
 * Integrate all modules.
-* Extract error from live program.
-* Design UI on terminal
-* Edit ReadMe.md
+* Design UI on terminal.
+* Edit and design ReadMe.md
+* Make use of pop-up window.
 
 ## License
 
