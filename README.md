@@ -6,6 +6,9 @@
 [![works on Windows](https://img.shields.io/badge/works%20on-Windows-blue.svg)](http://shields.io/#your-badge)
 [![works on Linux](https://img.shields.io/badge/works%20on-Linux-green.svg)](http://shields.io/#your-badge)
 [![made with &hearts in Python](https://img.shields.io/badge/made%20with%20%E2%9D%A4%20in-Python-red.svg)](http://shields.io/#your-badge)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/ssp4all/Intelligent-Codemate.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ssp4all/Intelligent-Codemate/alerts/)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/ssp4all/Intelligent-Codemate.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ssp4all/Intelligent-Codemate/context:python)
+
 
 
 <h1 align="center">
