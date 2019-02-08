@@ -43,7 +43,7 @@ def get_search_results(query):
                 answer_count = 0
 
             # Print content
-            print('-'*60)
+            print('-'*60)   #find current teminal width
             print(i)
             print(title)
             print("ANS-COUNT : ", sep=" ", end="")
@@ -51,12 +51,6 @@ def get_search_results(query):
             print(ans_status)
             print("LINK: " + (URL + title_link))
             i += 1
-
-            # search_results.append({
-            #     "Title": title,
-            #     "Answers": answer_count,
-            #     "URL": URL + title_link
-            # })
 
             search_results.append(URL + title_link)
 
@@ -67,6 +61,8 @@ def get_search_results(query):
         except KeyboardInterrupt:
             print("Exiting...")
             exit(1)
+        except ValueError:
+            print('Invalid Input')
         
         if choice <= 1 and choice >= i:
             print('Invalid Input...Exiting....')
@@ -84,8 +80,7 @@ def get_search_results(query):
         new_response = requests.get(new_url)
         new_soup = BeautifulSoup(new_response.text, 'html.parser')
 
-        new_title = new_soup.find(
-            'h1', {'class': 'grid--cell fs-headline1 fl1'}).get_text().replace('\n', '')
+        new_title = new_soup.find(class_='grid--cell fs-headline1 fl1 ow-break-word').get_text().replace('\n', '')
         print()
 
         print('#'*50)
@@ -94,21 +89,18 @@ def get_search_results(query):
 
         # post_bodies = new_soup.find_all(class_ = 'post-text')
         post_body = new_soup.find(class_='answer')
-
         # print(post_body)
-        pbody = post_body.find_all('p')  # find all p
+        if post_body.find:
+            pass
+        pbody = post_body.find_all(['p','code'])  # find all p
+        
         for p in pbody:
-            print(p.get_text())
+            print(p.get_text().strip())
             print()
-        # print(pbody)
 
-        pcode = post_body.find_all('code')  # find all code
-        for c in pcode:
-            print(c.get_text())
-            print()
-        # print(pcode)
 
-        pvote = post_body.find(class_="vote").find('span').get_text()
+        pvote = post_body.find(
+            class_='js-vote-count grid--cell fc-black-500 fs-title grid fd-column ai-center').get_text()
         print()
         print('*'*18)
         print("*    VOTES : ", end='')
@@ -125,5 +117,4 @@ def get_search_results(query):
                 os.system("clear")
             else:
                 os.system("cls")
-
 

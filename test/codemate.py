@@ -1,10 +1,12 @@
 # This file will extract error from file passed as extension
-
-import sys
 import os
+import re
+import sys
+
+from funtions import run, runrealtime, toString
 from install_packages import install
 from scrape import get_search_results
-from funtions import runrealtime, toString, run
+
 ########################################
 # Get file type by knowing its extension
 ########################################
@@ -38,7 +40,10 @@ def get_error_message(file):
             err = toString(error)
             er = re.search('\n(?:[ ]+.*\n)*(\w+: .*)', err).groups()
             error = er[0]  # To get first element of tuple consists of errors
-            # print(value) 
+            # print(value)
+            print('#'*40)  
+            print(error)
+            print('#'*40)
             print('Error...Unable to run file!')
             # sys.exit()          
 
