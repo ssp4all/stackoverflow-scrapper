@@ -89,15 +89,16 @@ def get_search_results(query):
 
         # post_bodies = new_soup.find_all(class_ = 'post-text')
         post_body = new_soup.find(class_='answer')
-        # print(post_body)
-        if post_body.find:
-            pass
-        pbody = post_body.find_all(['p','code'])  # find all p
-        
-        for p in pbody:
-            print(p.get_text().strip())
-            print()
-
+        # print(post_body)    
+        try:
+            pbody = post_body.find_all(['p','code'])  # find all p
+            for p in pbody:
+                print(p.get_text().strip())
+                print()
+        except AttributeError:
+            print('This Question has NO solution, Try again!')
+            time.sleep(3)
+            continue
 
         pvote = post_body.find(
             class_='js-vote-count grid--cell fc-black-500 fs-title grid fd-column ai-center').get_text()

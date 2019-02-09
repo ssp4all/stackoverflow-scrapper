@@ -1,18 +1,21 @@
 # Program to be executed First
-
 import os
 import subprocess
 import sys
-from pathlib import Path, PureWindowsPath
+from os import path
 
 from funtions import run, runrealtime, toString
+
 
 def install():
     #
     # checking for python version 3
     #
     print("Checking if Python installed...")
-    output, error = run(["python3", "-V"])
+    if os.name == 'nt':
+        output, error = run(["python", "-V"])
+    else:
+        output, error = run(["python3", "-V"])
     if len(error) != 0:
         # python 3 is not installed
         print('Python installed')
@@ -41,8 +44,13 @@ def install():
     # Upgrade setuptools and wheel
     #
     print("upgrading setuptools and wheel...")
-    output, error = runrealtime(
-        ["python3", "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
+    if os.name == 'nt':
+        output, error = runrealtime(
+            ["python", "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
+
+    else:
+        output, error = runrealtime(
+            ["python3", "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
     if len(error) != 0:
         print(toString(error))
         sys.exit(1)
@@ -52,15 +60,21 @@ def install():
     #
     print()
     print("Checking for requirement file...")
+    
     if os.name == 'nt':
-        path = PureWindowsPath(sys.path[0]+"/requirements.txt")  # for Windows
+        here = path.abspath(path.dirname(__file__))
+        p = here + "/requirements.txt"
     else:
-        path = sys.path[0]+'/requirements.txt'  # path for req. file(linux)
-    cpath = Path(path)
+        p = sys.path[0]+'/requirements.txt'  # path for req. file(linux)
+    
     try:
         print("Installing required packages...")
-        output, error = runrealtime(
-            ["pip3", "install", "-r", cpath])
+        if os.name == 'nt':
+            output, error = runrealtime(
+                ["pip3", "install", "-r", p])
+        else:
+            output, error = runrealtime(
+                ["pip3", "install", "-r", p])
 
         if len(error) == 0:
             print('Done, Good to GO!')
@@ -68,13 +82,13 @@ def install():
             print(toString(error))
             print()
             print('Error...Unable to Download packages!')
-            sys.exit()
+            exit(0)
     # else:
     except FileNotFoundError:
         print('Requirement File not found - Check directory!')
         print()
         print('Incomplete Requirements...Exiting!')
-        exit(1)
+        exit(0)
 
 if __name__ == "__main__":
     install()
