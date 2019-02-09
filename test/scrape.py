@@ -1,12 +1,15 @@
 # This file will scrape Stake Overflow site for given query
 
-import sys
 import os
-from bs4 import BeautifulSoup
-import requests
-from subprocess import PIPE, Popen
+import sys
 import time
+from subprocess import PIPE, Popen
+import webbrowser
+import keyboard
+import requests
+from bs4 import BeautifulSoup
 
+from terminal import get_terminal_size
 
 ########################################
 # Logic to scrape
@@ -15,6 +18,13 @@ import time
 def get_search_results(query):
     """Returns a list of dictionaries containing each search result."""
     while True:
+        #   
+        # Get current terminal width
+        #
+        sizex, sizey = get_terminal_size()
+        #
+        # Scraping
+        #
         URL = 'https://stackoverflow.com'       # Scrape this URL
         SO_URL = "https://stackoverflow.com/search?q="
 
@@ -43,9 +53,11 @@ def get_search_results(query):
                 answer_count = 0
 
             # Print content
-            print('-'*60)   #find current teminal width
-            print(i)
-            print(title)
+            print('-'*sizex)   #find current teminal width
+            print(i, end='  ')
+            # print('  ', end='')
+            print(title.strip())
+            print('-'*sizex)
             print("ANS-COUNT : ", sep=" ", end="")
             print(answer_count, sep=' ', end='  ')
             print(ans_status)
@@ -57,23 +69,30 @@ def get_search_results(query):
         # Get post number
         print()
         try:
-            choice = int(input("Enter your choice: "))
+            choice = input("Enter post no or 'q' to EXIT: ")
+            if choice in ['q', 'Q']:
+                print('Exiting...')
+                exit(0)
         except KeyboardInterrupt:
             print("Exiting...")
             exit(1)
         except ValueError:
             print('Invalid Input')
+        except EOFError:
+            print('Exiting...')
+            exit(0)
         
-        if choice <= 1 and choice >= i:
-            print('Invalid Input...Exiting....')
-            break
-
-
+        # if choice <= 1 and choice >= i:
+        #     print('Invalid Input...Exiting....')
+        #     break
         # Scrape particular post
         try:
-            post_no = search_results[choice-1]
+            post_no = search_results[int(choice)-1]
         except IndexError:
             print('Invalid Input')
+            continue
+        except ValueError:
+            print('Enter interger only!')
             continue
             
         new_url = post_no
@@ -83,9 +102,9 @@ def get_search_results(query):
         new_title = new_soup.find(class_='grid--cell fs-headline1 fl1 ow-break-word').get_text().replace('\n', '')
         print()
 
-        print('#'*50)
+        print('#'*sizex)
         print(new_title)
-        print('#'*50, end="\n\n")
+        print('#'*sizex, end="\n\n")
 
         # post_bodies = new_soup.find_all(class_ = 'post-text')
         post_body = new_soup.find(class_='answer')
@@ -103,19 +122,24 @@ def get_search_results(query):
         pvote = post_body.find(
             class_='js-vote-count grid--cell fc-black-500 fs-title grid fd-column ai-center').get_text()
         print()
-        print('*'*18)
+        print('*'*sizex, end='')
         print("*    VOTES : ", end='')
         print(pvote+"   *")
 
-        print('*'*18)
+        print('*'*sizex)
+        print('1. EXIT (q)')
+        print('2. Open in Browser (b)')
+        print('3. Continue (y)')
+        ch = input()
 
-        ch = input('Do you want to EXIT y/n :')
-        if ch == 'y':
+        if ch in ['q', 'Q', 'n']:
             print('\nExiting....')
-            exit(1)
+            exit(0)
+        elif ch in ['b', 'B']:
+            webbrowser.open(new_url)
+            continue
         else:
             if os.name != 'nt':
                 os.system("clear")
             else:
                 os.system("cls")
-

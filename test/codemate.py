@@ -6,7 +6,7 @@ import sys
 from funtions import run, runrealtime, toString
 from install_packages import install
 from scrape import get_search_results
-
+from terminal import get_terminal_size
 ########################################
 # Get file type by knowing its extension
 ########################################
@@ -41,9 +41,9 @@ def get_error_message(file):
             er = re.search('\n(?:[ ]+.*\n)*(\w+: .*)', err).groups()
             error = er[0]  # To get first element of tuple consists of errors
             # print(value)
-            print('#'*40)  
+            print('#'*sizex)  
             print(error)
-            print('#'*40)
+            print('#'*sizex)
             print('Error...Unable to run file!')
             # sys.exit()          
 
@@ -73,14 +73,19 @@ def print_help():
 ########################################
 
 def main():
-    
+    # Get terminal size
+    sizex, sizey = get_terminal_size()
 
     if len(sys.argv) == 1 or sys.argv[1].lower() == '-h':
         print_help()
     elif sys.argv[1].lower() == '-q' or sys.argv[1].lower() == '--query':
         query = ' '.join(sys.argv[2:])
-        print(query)
-
+        
+        print()
+        print('#'*sizex, end='')  # find current teminal width
+        print(query.upper())
+        print('#'*sizex)
+        print()
         # while True:
         get_search_results(query)
             # print('Do you want to EXIT press ctrl+C')
