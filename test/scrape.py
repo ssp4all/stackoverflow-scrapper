@@ -5,7 +5,7 @@ import sys
 import time
 from subprocess import PIPE, Popen
 import webbrowser
-import keyboard
+# import keyboard
 import requests
 from bs4 import BeautifulSoup
 

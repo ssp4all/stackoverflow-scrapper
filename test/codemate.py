@@ -7,15 +7,17 @@ from funtions import run, runrealtime, toString
 from install_packages import install
 from scrape import get_search_results
 from terminal import get_terminal_size
+from termcolor import colored
+# import keyboard
 
 # ASCII color codes
-GREEN = '\033[92m'
-GRAY = '\033[90m'
-CYAN = '\033[36m'
-RED = '\033[31m'
-YELLOW = '\033[33m'
-END = '\033[0m'
-UNDERLINE = '\033[4m'
+# GREEN = '\033[92m'
+# GRAY = '\033[90m'
+# CYAN = '\033[36m'
+# RED = '\033[31m'
+# YELLOW = '\033[33m'
+# END = '\033[0m'
+# UNDERLINE = '\033[4m'
 BOLD = '\033[1m'
 
 ########################################
@@ -71,10 +73,11 @@ def get_error_message(file):
 
 
 def print_help():
-    print('Help --> %sIntelligent-Codemate%s\n' % (BOLD, END))
-    print('WELCOME')
     print()
-    print('1]   python codemate.py -q what is web-scraping')
+    print(colored('%sIntelligent-Codemate','red')%(BOLD))
+    print(colored('WELCOME','green'))
+    print()
+    print('1]   python codemate.py -q your_query_here')
     print()
     print('2]   python codemate.py your_file.py')
     print()
