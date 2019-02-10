@@ -106,9 +106,8 @@ def get_error_message(error, language):
     elif language == "python3":
         if any(e in error for e in ["KeyboardInterrupt", "SystemExit", "GeneratorExit"]): # Non-compiler errors
             return None
-
         else:
-            return error.split('\n')[-2][1:]
+            return error.split('\n')[-2].strip()
     elif language == "node":
         return error.split('\n')[4][1:]
     elif language == "go run":
@@ -152,7 +151,7 @@ def read(pipe, funcs):
 def write(get):
     """Pulls output from shared queue and prints to terminal."""
     for line in iter(get, None):
-        sys.stdout.write(line)
+        print(line)
 
 
 ## Main ##
@@ -244,33 +243,37 @@ def stylize_code(soup):
 def get_search_results(soup):
     """Returns a list of dictionaries containing each search result."""
     search_results = []
-    posts = soup.find_all(class_="question-summary search-result")
-    for result in posts:
-        title = result.find(class_="result-link").get_text().replace('\n', '')
-        title_link = result.find(class_="result-link").find('a')['href']
 
-        if (result.find(class_="status answered")) != None: # Has answers
-            answer_count = int(result.find(class_="status answered").find("strong").get_text())
-        elif result.find(class_="status answered-accepted") != None: # Has an accepted answer (closed)
-            answer_count = int(result.find(class_="status answered-accepted").find("strong").get_text())
+    for result in soup.find_all("div", class_="question-summary search-result"):
+        title_container = result.find_all("div", class_="result-link")[0].find_all("a")[0]
+
+        if result.find_all("div", class_="status answered") != []: # Has answers
+            answer_count = int(result.find_all("div", class_="status answered")[0].find_all("strong")[0].text)
+        elif result.find_all("div", class_="status answered-accepted") != []: # Has an accepted answer (closed)
+            answer_count = int(result.find_all("div", class_="status answered-accepted")[0].find_all("strong")[0].text)
         else: # No answers
             answer_count = 0
 
-        # answer_count = 0
         search_results.append({
-            "Title": title,
+            "Title": title_container["title"],
             #"Body": result.find_all("div", class_="excerpt")[0].text,
             #"Votes": int(result.find_all("span", class_="vote-count-post ")[0].find_all("strong")[0].text),
             "Answers": answer_count,
-            "URL": SO_URL + title_link
-        })  
+            "URL": SO_URL + title_container["href"]
+        })
 
     return search_results
 
 
 def souper(url):
     """Turns a given URL into a BeautifulSoup object."""
-    html = requests.get(url, headers={"User-Agent": random.choice(USER_AGENTS)})
+
+    try:
+        html = requests.get(url, headers={"User-Agent": random.choice(USER_AGENTS)})
+    except requests.exceptions.RequestException:
+        sys.stdout.write("\n%s%s%s" % (RED, "Rebound was unable to fetch Stack Overflow results. "
+                                            "Please check that you are connected to the internet.\n", END))
+        sys.exit(1)
 
     if re.search("\.com/nocaptcha", html.url): # URL is a captcha page
         return None
@@ -301,7 +304,7 @@ def get_question_and_answers(url):
         return "Sorry, Stack Overflow blocked our request. Try again in a couple seconds.", "", "", ""
     else:
         question_title = soup.find_all('a', class_="question-hyperlink")[0].get_text()
-        question_stats = soup.find_all("span", class_="vote-count-post")[0].get_text() # Vote count
+        question_stats = soup.find("div", class_="js-vote-count").get_text() # Vote count
 
         try:
             question_stats = question_stats + " Votes | " + '|'.join((((soup.find_all("div", class_="module question-stats")[0].get_text())
@@ -345,6 +348,7 @@ class Scrollable(urwid.WidgetDecoration):
         self._forward_keypress = None
         self._old_cursor_coords = None
         self._rows_max_cached = 0
+        self._rows_max_displayable = 0
         self.__super.__init__(widget)
 
 
@@ -366,7 +370,7 @@ class Scrollable(urwid.WidgetDecoration):
             fill_height = maxrow - canv_rows
             if fill_height > 0: # Canvas is lower than available vertical space
                 canv.pad_trim_top_bottom(0, fill_height)
-
+        self._rows_max_displayable = maxrow
         if canv_cols <= maxcol and canv_rows <= maxrow: # Canvas is small enough to fit without trimming
             return canv
 
@@ -513,6 +517,9 @@ class Scrollable(urwid.WidgetDecoration):
                 raise RuntimeError("Not a flow/box widget: %r" % self._original_widget)
         return self._rows_max_cached
 
+    @property
+    def scroll_ratio(self):
+        return self._rows_max_cached / self._rows_max_displayable
 
 class ScrollBar(urwid.WidgetDecoration):
     # TODO: Change scrollbar size and color(?)
@@ -534,6 +541,7 @@ class ScrollBar(urwid.WidgetDecoration):
         self.scrollbar_side = side
         self.scrollbar_width = max(1, width)
         self._original_widget_size = (0, 0)
+        self._dragging = False
 
 
     def render(self, size, focus=False):
@@ -625,6 +633,12 @@ class ScrollBar(urwid.WidgetDecoration):
             if is_scrolling_widget(w):
                 return w
 
+    @property
+    def scrollbar_column(self):
+        if self.scrollbar_side == SCROLLBAR_LEFT:
+            return 0
+        if self.scrollbar_side == SCROLLBAR_RIGHT:
+            return self._original_widget_size[0]
 
     def keypress(self, size, key):
         return self._original_widget.keypress(self._original_widget_size, key)
@@ -647,6 +661,18 @@ class ScrollBar(urwid.WidgetDecoration):
                 pos = ow.get_scrollpos(ow_size)
                 ow.set_scrollpos(pos + 1)
                 return True
+            elif col == self.scrollbar_column:
+                ow.set_scrollpos(int(row*ow.scroll_ratio))
+                if event == "mouse press":
+                    self._dragging = True
+                elif event == "mouse release":
+                    self._dragging = False
+            elif self._dragging:
+                ow.set_scrollpos(int(row*ow.scroll_ratio))
+                if event == "mouse release":
+                    self._dragging = False
+
+
 
         return False
 
@@ -717,7 +743,7 @@ class App(object):
 
                 pile = urwid.Pile(self._stylize_question(question_title, question_desc, question_stats) + [urwid.Divider('*')] +
                 interleave(answers, [urwid.Divider('-')] * (len(answers) - 1)))
-                padding = urwid.Padding(ScrollBar(Scrollable(pile)), left=2, right=2)
+                padding = ScrollBar(Scrollable(urwid.Padding(pile, left=2, right=2)))
                 #filler = urwid.Filler(padding, valign="top")
                 linebox = urwid.LineBox(padding)
 
@@ -782,22 +808,22 @@ def confirm(question):
     prompt = " [Y/n] "
 
     while True:
-        sys.stdout.write(BOLD + CYAN + question + prompt + END)
+        print(BOLD + CYAN + question + prompt + END)
         choice = input().lower()
         if choice in valid:
             return valid[choice]
 
-        sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
+        print("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
 
 def print_help():
     """Prints usage instructions."""
-    sys.stdout.write("%sRebound, V1.1.9a1 - Made by @shobrook%s\n" % (BOLD, END))
-    sys.stdout.write("Command-line tool that automatically searches Stack Overflow and displays results in your terminal when you get a compiler error.")
-    sys.stdout.write("\n\n%sUsage:%s $ rebound %s[file_name]%s\n" % (UNDERLINE, END, YELLOW, END))
-    sys.stdout.write("\n$ python3 %stest.py%s   =>   $ rebound %stest.py%s" % (YELLOW, END, YELLOW, END))
-    sys.stdout.write("\n$ node %stest.js%s     =>   $ rebound %stest.js%s\n" % (YELLOW, END, YELLOW, END))
-    sys.stdout.write("\nIf you just want to query Stack Overflow, use the -q parameter: $ rebound -q %sWhat is an array comprehension?%s\n\n" % (YELLOW, END))
+    print("%sRebound, V1.1.9a1 - Made by @shobrook%s\n" % (BOLD, END))
+    print("Command-line tool that automatically searches Stack Overflow and displays results in your terminal when you get a compiler error.")
+    print("\n\n%sUsage:%s $ rebound %s[file_name]%s\n" % (UNDERLINE, END, YELLOW, END))
+    print("\n$ python3 %stest.py%s   =>   $ rebound %stest.py%s" % (YELLOW, END, YELLOW, END))
+    print("\n$ node %stest.js%s     =>   $ rebound %stest.js%s\n" % (YELLOW, END, YELLOW, END))
+    print("\nIf you just want to query Stack Overflow, use the -q parameter: $ rebound -q %sWhat is an array comprehension?%s\n\n" % (YELLOW, END))
 
 
 ## Main ##
@@ -812,16 +838,16 @@ def main():
 
         if search_results != []:
             if captcha:
-                sys.stdout.write("\n%s%s%s" % (RED, "Sorry, Stack Overflow blocked our request. Try again in a minute.\n", END))
+                print("\n%s%s%s" % (RED, "Sorry, Stack Overflow blocked our request. Try again in a minute.\n", END))
                 return
             else:
                 App(search_results) # Opens interface
         else:
-            sys.stdout.write("\n%s%s%s" % (RED, "No Stack Overflow results found.\n", END))
+            print("\n%s%s%s" % (RED, "No Stack Overflow results found.\n", END))
     else:
         language = get_language(sys.argv[1].lower()) # Gets the language name
         if language == '': # Unknown language
-            sys.stdout.write("\n%s%s%s" % (RED, "Sorry, Rebound doesn't support this file type.\n", END))
+            print("\n%s%s%s" % (RED, "Sorry, Rebound doesn't support this file type.\n", END))
             return
 
         file_path = sys.argv[1:]
@@ -839,17 +865,13 @@ def main():
 
             if search_results != []:
                 if captcha:
-                    sys.stdout.write("\n%s%s%s" % (RED, "Sorry, Stack Overflow blocked our request. Try again in a minute.\n", END))
+                    print("\n%s%s%s" % (RED, "Sorry, Stack Overflow blocked our request. Try again in a minute.\n", END))
                     return
                 elif confirm("\nDisplay Stack Overflow results?"):
                     App(search_results) # Opens interface
             else:
-                sys.stdout.write("\n%s%s%s" % (RED, "No Stack Overflow results found.\n", END))
+                print("\n%s%s%s" % (RED, "No Stack Overflow results found.\n", END))
         else:
-            sys.stdout.write("\n%s%s%s" % (CYAN, "No error detected :)\n", END))
+            print("\n%s%s%s" % (CYAN, "No error detected :)\n", END))
 
     return
-
-
-if __name__ == "__main__":
-    main()
