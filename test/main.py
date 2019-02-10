@@ -92,11 +92,11 @@ def get_language(file_path):
     elif file_path.endswith(".rb"):
         return "ruby"
     elif file_path.endswith(".java"):
-        return 'javac' # Compile Java Source File
+        return 'javac'  # Compile Java Source File
     elif file_path.endswith(".class"):
-        return 'java' # Run Java Class File
+        return 'java'  # Run Java Class File
     else:
-        return '' # Unknown language
+        return ''  # Unknown language
 
 
 def get_error_message(error, language):
@@ -104,7 +104,8 @@ def get_error_message(error, language):
     if error == '':
         return None
     elif language == "python3":
-        if any(e in error for e in ["KeyboardInterrupt", "SystemExit", "GeneratorExit"]): # Non-compiler errors
+        # Non-compiler errors
+        if any(e in error for e in ["KeyboardInterrupt", "SystemExit", "GeneratorExit"]):
             return None
         else:
             return error.split('\n')[-2].strip()
@@ -171,13 +172,16 @@ def execute(command):
     )
 
     output, errors = [], []
-    pipe_queue = Queue() # Wowee, thanks CS 225
+    pipe_queue = Queue()  # Wowee, thanks CS 225
 
     # Threads for reading stdout and stderr pipes and pushing to a shared queue
-    stdout_thread = Thread(target=read, args=(process.stdout, [pipe_queue.put, output.append]))
-    stderr_thread = Thread(target=read, args=(process.stderr, [pipe_queue.put, errors.append]))
+    stdout_thread = Thread(target=read, args=(
+        process.stdout, [pipe_queue.put, output.append]))
+    stderr_thread = Thread(target=read, args=(
+        process.stderr, [pipe_queue.put, errors.append]))
 
-    writer_thread = Thread(target=write, args=(pipe_queue.get,)) # Thread for printing items in the queue
+    # Thread for printing items in the queue
+    writer_thread = Thread(target=write, args=(pipe_queue.get,))
 
     # Spawns each thread
     for thread in (stdout_thread, stderr_thread, writer_thread):
@@ -194,7 +198,8 @@ def execute(command):
     output = ' '.join(output)
     errors = ' '.join(errors)
 
-    if "java" != command[0] and not os.path.isfile(command[1]): # File doesn't exist, for java, command[1] is a class name instead of a file
+    # File doesn't exist, for java, command[1] is a class name instead of a file
+    if "java" != command[0] and not os.path.isfile(command[1]):
         return (None, None)
     else:
         return (output, errors)
@@ -219,16 +224,16 @@ def stylize_code(soup):
     for child in soup.recursiveChildGenerator():
         name = getattr(child, "name", None)
 
-        if name is None: # Leaf (terminal) node
+        if name is None:  # Leaf (terminal) node
             if child in code_blocks:
-                if newline: # Code block
+                if newline:  # Code block
                     #if code_blocks.index(child) == len(code_blocks) - 1: # Last code block
                         #child = child[:-1]
                     stylized_text.append(("code", u"\n%s" % str(child)))
                     newline = False
-                else: # In-line code
+                else:  # In-line code
                     stylized_text.append(("code", u"%s" % str(child)))
-            else: # Plaintext
+            else:  # Plaintext
                 newline = child.endswith('\n')
                 stylized_text.append(u"%s" % str(child))
 
@@ -245,13 +250,17 @@ def get_search_results(soup):
     search_results = []
 
     for result in soup.find_all("div", class_="question-summary search-result"):
-        title_container = result.find_all("div", class_="result-link")[0].find_all("a")[0]
+        title_container = result.find_all(
+            "div", class_="result-link")[0].find_all("a")[0]
 
-        if result.find_all("div", class_="status answered") != []: # Has answers
-            answer_count = int(result.find_all("div", class_="status answered")[0].find_all("strong")[0].text)
-        elif result.find_all("div", class_="status answered-accepted") != []: # Has an accepted answer (closed)
-            answer_count = int(result.find_all("div", class_="status answered-accepted")[0].find_all("strong")[0].text)
-        else: # No answers
+        if result.find_all("div", class_="status answered") != []:  # Has answers
+            answer_count = int(result.find_all("div", class_="status answered")[
+                               0].find_all("strong")[0].text)
+        # Has an accepted answer (closed)
+        elif result.find_all("div", class_="status answered-accepted") != []:
+            answer_count = int(result.find_all(
+                "div", class_="status answered-accepted")[0].find_all("strong")[0].text)
+        else:  # No answers
             answer_count = 0
 
         search_results.append({
@@ -269,13 +278,14 @@ def souper(url):
     """Turns a given URL into a BeautifulSoup object."""
 
     try:
-        html = requests.get(url, headers={"User-Agent": random.choice(USER_AGENTS)})
+        html = requests.get(
+            url, headers={"User-Agent": random.choice(USER_AGENTS)})
     except requests.exceptions.RequestException:
         sys.stdout.write("\n%s%s%s" % (RED, "Rebound was unable to fetch Stack Overflow results. "
                                             "Please check that you are connected to the internet.\n", END))
         sys.exit(1)
 
-    if re.search("\.com/nocaptcha", html.url): # URL is a captcha page
+    if re.search("\.com/nocaptcha", html.url):  # URL is a captcha page
         return None
     else:
         return BeautifulSoup(html.text, "html.parser")
@@ -286,7 +296,8 @@ def souper(url):
 
 def search_stackoverflow(query):
     """Wrapper function for get_search_results."""
-    soup = souper(SO_URL + "/search?pagesize=50&q=%s" % query.replace(' ', '+'))
+    soup = souper(SO_URL + "/search?pagesize=50&q=%s" %
+                  query.replace(' ', '+'))
 
     # TODO: Randomize the user agent
 
@@ -300,24 +311,29 @@ def get_question_and_answers(url):
     """Returns details about a given question and list of its answers."""
     soup = souper(url)
 
-    if soup == None: # Captcha page
+    if soup == None:  # Captcha page
         return "Sorry, Stack Overflow blocked our request. Try again in a couple seconds.", "", "", ""
     else:
-        question_title = soup.find_all('a', class_="question-hyperlink")[0].get_text()
-        question_stats = soup.find("div", class_="js-vote-count").get_text() # Vote count
+        question_title = soup.find_all(
+            'a', class_="question-hyperlink")[0].get_text()
+        question_stats = soup.find(
+            "div", class_="js-vote-count").get_text()  # Vote count
 
         try:
             question_stats = question_stats + " Votes | " + '|'.join((((soup.find_all("div", class_="module question-stats")[0].get_text())
-                .replace('\n', ' ')).replace("     ", " | ")).split('|')[:2]) # Vote count, submission date, view count
+                                                                       .replace('\n', ' ')).replace("     ", " | ")).split('|')[:2])  # Vote count, submission date, view count
         except IndexError:
             question_stats = "Could not load statistics."
 
-        question_desc = stylize_code(soup.find_all("div", class_="post-text")[0]) # TODO: Handle duplicates
+        question_desc = stylize_code(soup.find_all(
+            "div", class_="post-text")[0])  # TODO: Handle duplicates
         question_stats = ' '.join(question_stats.split())
 
-        answers = [stylize_code(answer) for answer in soup.find_all("div", class_="post-text")][1:]
+        answers = [stylize_code(answer) for answer in soup.find_all(
+            "div", class_="post-text")][1:]
         if len(answers) == 0:
-            answers.append(urwid.Text(("no answers", u"\nNo answers for this question.")))
+            answers.append(urwid.Text(
+                ("no answers", u"\nNo answers for this question.")))
 
         return question_title, question_desc, question_stats, answers
 
@@ -334,12 +350,10 @@ class Scrollable(urwid.WidgetDecoration):
     # TODO: Fix scrolling behavior (works with up/down keys, not with cursor)
 
     def sizing(self):
-        return frozenset([BOX,])
-
+        return frozenset([BOX, ])
 
     def selectable(self):
         return True
-
 
     def __init__(self, widget):
         """Box widget (wrapper) that makes a fixed or flow widget vertically scrollable."""
@@ -350,7 +364,6 @@ class Scrollable(urwid.WidgetDecoration):
         self._rows_max_cached = 0
         self._rows_max_displayable = 0
         self.__super.__init__(widget)
-
 
     def render(self, size, focus=False):
         maxcol, maxrow = size
@@ -363,15 +376,15 @@ class Scrollable(urwid.WidgetDecoration):
 
         if canv_cols <= maxcol:
             pad_width = maxcol - canv_cols
-            if pad_width > 0: # Canvas is narrower than available horizontal space
+            if pad_width > 0:  # Canvas is narrower than available horizontal space
                 canv.pad_trim_left_right(0, pad_width)
 
         if canv_rows <= maxrow:
             fill_height = maxrow - canv_rows
-            if fill_height > 0: # Canvas is lower than available vertical space
+            if fill_height > 0:  # Canvas is lower than available vertical space
                 canv.pad_trim_top_bottom(0, fill_height)
         self._rows_max_displayable = maxrow
-        if canv_cols <= maxcol and canv_rows <= maxrow: # Canvas is small enough to fit without trimming
+        if canv_cols <= maxcol and canv_rows <= maxrow:  # Canvas is small enough to fit without trimming
             return canv
 
         self._adjust_trim_top(canv, size)
@@ -398,7 +411,6 @@ class Scrollable(urwid.WidgetDecoration):
 
         return canv
 
-
     def keypress(self, size, key):
         if self._forward_keypress:
             ow = self._original_widget
@@ -422,15 +434,14 @@ class Scrollable(urwid.WidgetDecoration):
             self._scroll_action = SCROLL_PAGE_UP
         elif command_map[key] == urwid.CURSOR_PAGE_DOWN:
             self._scroll_action = SCROLL_PAGE_DOWN
-        elif command_map[key] == urwid.CURSOR_MAX_LEFT: # "home"
+        elif command_map[key] == urwid.CURSOR_MAX_LEFT:  # "home"
             self._scroll_action = SCROLL_TO_TOP
-        elif command_map[key] == urwid.CURSOR_MAX_RIGHT: # "end"
+        elif command_map[key] == urwid.CURSOR_MAX_RIGHT:  # "end"
             self._scroll_action = SCROLL_TO_END
         else:
             return key
 
         self._invalidate()
-
 
     def mouse_event(self, size, event, button, col, row, focus):
         ow = self._original_widget
@@ -440,7 +451,6 @@ class Scrollable(urwid.WidgetDecoration):
             return ow.mouse_event(ow_size, event, button, col, row, focus)
         else:
             return False
-
 
     def _adjust_trim_top(self, canv, size):
         """Adjust self._trim_top according to self._scroll_action"""
@@ -485,7 +495,6 @@ class Scrollable(urwid.WidgetDecoration):
             elif cursrow >= self._trim_top + maxrow:
                 self._trim_top = max(0, cursrow - maxrow + 1)
 
-
     def _get_original_widget_size(self, size):
         ow = self._original_widget
         sizing = ow.sizing()
@@ -494,15 +503,12 @@ class Scrollable(urwid.WidgetDecoration):
         elif FLOW in sizing:
             return (size[0],)
 
-
     def get_scrollpos(self, size=None, focus=False):
         return self._trim_top
-
 
     def set_scrollpos(self, position):
         self._trim_top = int(position)
         self._invalidate()
-
 
     def rows_max(self, size=None, focus=False):
         if size is not None:
@@ -514,12 +520,14 @@ class Scrollable(urwid.WidgetDecoration):
             elif FLOW in sizing:
                 self._rows_max_cached = ow.rows(ow_size, focus)
             else:
-                raise RuntimeError("Not a flow/box widget: %r" % self._original_widget)
+                raise RuntimeError("Not a flow/box widget: %r" %
+                                   self._original_widget)
         return self._rows_max_cached
 
     @property
     def scroll_ratio(self):
         return self._rows_max_cached / self._rows_max_displayable
+
 
 class ScrollBar(urwid.WidgetDecoration):
     # TODO: Change scrollbar size and color(?)
@@ -527,10 +535,8 @@ class ScrollBar(urwid.WidgetDecoration):
     def sizing(self):
         return frozenset((BOX,))
 
-
     def selectable(self):
         return True
-
 
     def __init__(self, widget, thumb_char=u'\u2588', trough_char=' ',
                  side=SCROLLBAR_RIGHT, width=1):
@@ -543,14 +549,13 @@ class ScrollBar(urwid.WidgetDecoration):
         self._original_widget_size = (0, 0)
         self._dragging = False
 
-
     def render(self, size, focus=False):
         maxcol, maxrow = size
 
         ow = self._original_widget
         ow_base = self.scrolling_base_widget
         ow_rows_max = ow_base.rows_max(size, focus)
-        if ow_rows_max <= maxrow: # Canvas fits without scrolling - no scrollbar needed
+        if ow_rows_max <= maxrow:  # Canvas fits without scrolling - no scrollbar needed
             self._original_widget_size = size
             return ow.render(size, focus)
 
@@ -586,36 +591,33 @@ class ScrollBar(urwid.WidgetDecoration):
             (bottom, None, False),
         ])
 
-        combinelist = [(ow_canv, None, True, ow_size[0]), (sb_canv, None, False, sb_width)]
+        combinelist = [(ow_canv, None, True, ow_size[0]),
+                       (sb_canv, None, False, sb_width)]
         if self._scrollbar_side != SCROLLBAR_LEFT:
             return urwid.CanvasJoin(combinelist)
         else:
             return urwid.CanvasJoin(reversed(combinelist))
 
-
     @property
     def scrollbar_width(self):
         return max(1, self._scrollbar_width)
-
 
     @scrollbar_width.setter
     def scrollbar_width(self, width):
         self._scrollbar_width = max(1, int(width))
         self._invalidate()
 
-
     @property
     def scrollbar_side(self):
         return self._scrollbar_side
 
-
     @scrollbar_side.setter
     def scrollbar_side(self, side):
         if side not in (SCROLLBAR_LEFT, SCROLLBAR_RIGHT):
-            raise ValueError("scrollbar_side must be 'left' or 'right', not %r" % side)
+            raise ValueError(
+                "scrollbar_side must be 'left' or 'right', not %r" % side)
         self._scrollbar_side = side
         self._invalidate()
-
 
     @property
     def scrolling_base_widget(self):
@@ -643,7 +645,6 @@ class ScrollBar(urwid.WidgetDecoration):
     def keypress(self, size, key):
         return self._original_widget.keypress(self._original_widget_size, key)
 
-
     def mouse_event(self, size, event, button, col, row, focus):
         ow = self._original_widget
         ow_size = self._original_widget_size
@@ -652,12 +653,12 @@ class ScrollBar(urwid.WidgetDecoration):
             handled = ow.mouse_event(ow_size, event, button, col, row, focus)
 
         if not handled and hasattr(ow, "set_scrollpos"):
-            if button == 4: # Scroll wheel up
+            if button == 4:  # Scroll wheel up
                 pos = ow.get_scrollpos(ow_size)
                 if pos > 0:
                     ow.set_scrollpos(pos - 1)
                     return True
-            elif button == 5: # Scroll wheel down
+            elif button == 5:  # Scroll wheel down
                 pos = ow.get_scrollpos(ow_size)
                 ow.set_scrollpos(pos + 1)
                 return True
@@ -672,15 +673,12 @@ class ScrollBar(urwid.WidgetDecoration):
                 if event == "mouse release":
                     self._dragging = False
 
-
-
         return False
 
 
 class SelectableText(urwid.Text):
     def selectable(self):
         return True
-
 
     def keypress(self, size, key):
         return key
@@ -722,28 +720,31 @@ class App(object):
             ("menu", u" Q "), ("light gray", u" Quit"),
         ])
 
-        results = list(map(lambda result: urwid.AttrMap(SelectableText(self._stylize_title(result)), None, "reveal focus"), self.search_results)) # TODO: Add a wrap='clip' attribute
+        results = list(map(lambda result: urwid.AttrMap(SelectableText(self._stylize_title(
+            result)), None, "reveal focus"), self.search_results))  # TODO: Add a wrap='clip' attribute
         content = urwid.SimpleListWalker(results)
         self.content_container = urwid.ListBox(content)
         layout = urwid.Frame(body=self.content_container, footer=self.menu)
 
-        self.main_loop = urwid.MainLoop(layout, self.palette, unhandled_input=self._handle_input)
+        self.main_loop = urwid.MainLoop(
+            layout, self.palette, unhandled_input=self._handle_input)
         self.original_widget = self.main_loop.widget
 
         self.main_loop.run()
 
-
     def _handle_input(self, input):
-        if input == "enter": # View answers
+        if input == "enter":  # View answers
             url = self._get_selected_link()
 
             if url != None:
                 self.viewing_answers = True
-                question_title, question_desc, question_stats, answers = get_question_and_answers(url)
+                question_title, question_desc, question_stats, answers = get_question_and_answers(
+                    url)
 
                 pile = urwid.Pile(self._stylize_question(question_title, question_desc, question_stats) + [urwid.Divider('*')] +
-                interleave(answers, [urwid.Divider('-')] * (len(answers) - 1)))
-                padding = ScrollBar(Scrollable(urwid.Padding(pile, left=2, right=2)))
+                                  interleave(answers, [urwid.Divider('-')] * (len(answers) - 1)))
+                padding = ScrollBar(Scrollable(
+                    urwid.Padding(pile, left=2, right=2)))
                 #filler = urwid.Filler(padding, valign="top")
                 linebox = urwid.LineBox(padding)
 
@@ -754,37 +755,36 @@ class App(object):
                     ("menu", u" Q "), ("light gray", u" Quit"),
                 ])
 
-                self.main_loop.widget = urwid.Frame(body=urwid.Overlay(linebox, self.content_container, "center", ("relative", 60), "middle", 23), footer=menu)
-        elif input in ('b', 'B'): # Open link
+                self.main_loop.widget = urwid.Frame(body=urwid.Overlay(
+                    linebox, self.content_container, "center", ("relative", 60), "middle", 23), footer=menu)
+        elif input in ('b', 'B'):  # Open link
             url = self._get_selected_link()
 
             if url != None:
                 webbrowser.open(url)
-        elif input == "esc": # Close window
+        elif input == "esc":  # Close window
             if self.viewing_answers:
                 self.main_loop.widget = self.original_widget
                 self.viewing_answers = False
             else:
                 raise urwid.ExitMainLoop()
-        elif input in ('q', 'Q'): # Quit
+        elif input in ('q', 'Q'):  # Quit
             raise urwid.ExitMainLoop()
 
-
     def _get_selected_link(self):
-        focus_widget, idx = self.content_container.get_focus() # Gets selected item
+        focus_widget, idx = self.content_container.get_focus()  # Gets selected item
         title = focus_widget.base_widget.text
 
         for result in self.search_results:
-            if title == self._stylize_title(result): # Found selected title's search_result dict
+            # Found selected title's search_result dict
+            if title == self._stylize_title(result):
                 return result["URL"]
-
 
     def _stylize_title(self, search_result):
         if search_result["Answers"] == 1:
             return "%s (1 Answer)" % search_result["Title"]
         else:
             return "%s (%s Answers)" % (search_result["Title"], search_result["Answers"])
-
 
     def _stylize_question(self, title, desc, stats):
         new_title = urwid.Text(("title", u"%s" % title))
@@ -820,9 +820,12 @@ def print_help():
     """Prints usage instructions."""
     print("%sRebound, V1.1.9a1 - Made by @shobrook%s\n" % (BOLD, END))
     print("Command-line tool that automatically searches Stack Overflow and displays results in your terminal when you get a compiler error.")
-    print("\n\n%sUsage:%s $ rebound %s[file_name]%s\n" % (UNDERLINE, END, YELLOW, END))
-    print("\n$ python3 %stest.py%s   =>   $ rebound %stest.py%s" % (YELLOW, END, YELLOW, END))
-    print("\n$ node %stest.js%s     =>   $ rebound %stest.js%s\n" % (YELLOW, END, YELLOW, END))
+    print("\n\n%sUsage:%s $ rebound %s[file_name]%s\n" % (
+        UNDERLINE, END, YELLOW, END))
+    print("\n$ python3 %stest.py%s   =>   $ rebound %stest.py%s" %
+          (YELLOW, END, YELLOW, END))
+    print("\n$ node %stest.js%s     =>   $ rebound %stest.js%s\n" %
+          (YELLOW, END, YELLOW, END))
     print("\nIf you just want to query Stack Overflow, use the -q parameter: $ rebound -q %sWhat is an array comprehension?%s\n\n" % (YELLOW, END))
 
 
@@ -838,40 +841,50 @@ def main():
 
         if search_results != []:
             if captcha:
-                print("\n%s%s%s" % (RED, "Sorry, Stack Overflow blocked our request. Try again in a minute.\n", END))
+                print("\n%s%s%s" % (
+                    RED, "Sorry, Stack Overflow blocked our request. Try again in a minute.\n", END))
                 return
             else:
-                App(search_results) # Opens interface
+                App(search_results)  # Opens interface
         else:
             print("\n%s%s%s" % (RED, "No Stack Overflow results found.\n", END))
     else:
-        language = get_language(sys.argv[1].lower()) # Gets the language name
-        if language == '': # Unknown language
-            print("\n%s%s%s" % (RED, "Sorry, Rebound doesn't support this file type.\n", END))
+        language = get_language(sys.argv[1].lower())  # Gets the language name
+        if language == '':  # Unknown language
+            print("\n%s%s%s" %
+                  (RED, "Sorry, Rebound doesn't support this file type.\n", END))
             return
 
         file_path = sys.argv[1:]
         if language == 'java':
             file_path = [f.replace('.class', '') for f in file_path]
-        output, error = execute([language] + file_path) # Compiles the file and pipes stdout
-        if (output, error) == (None, None): # Invalid file
+        # Compiles the file and pipes stdout
+        output, error = execute([language] + file_path)
+        if (output, error) == (None, None):  # Invalid file
             return
 
-        error_msg = get_error_message(error, language) # Prepares error message for search
+        # Prepares error message for search
+        error_msg = get_error_message(error, language)
         if error_msg != None:
-            language = 'java' if language == 'javac' else language # Fix language compiler command
+            # Fix language compiler command
+            language = 'java' if language == 'javac' else language
             query = "%s %s" % (language, error_msg)
             search_results, captcha = search_stackoverflow(query)
 
             if search_results != []:
                 if captcha:
-                    print("\n%s%s%s" % (RED, "Sorry, Stack Overflow blocked our request. Try again in a minute.\n", END))
+                    print("\n%s%s%s" % (
+                        RED, "Sorry, Stack Overflow blocked our request. Try again in a minute.\n", END))
                     return
                 elif confirm("\nDisplay Stack Overflow results?"):
-                    App(search_results) # Opens interface
+                    App(search_results)  # Opens interface
             else:
-                print("\n%s%s%s" % (RED, "No Stack Overflow results found.\n", END))
+                print("\n%s%s%s" %
+                      (RED, "No Stack Overflow results found.\n", END))
         else:
             print("\n%s%s%s" % (CYAN, "No error detected :)\n", END))
 
     return
+
+if __name__ == "__main__":
+    main()

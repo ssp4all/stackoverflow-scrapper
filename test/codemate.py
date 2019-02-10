@@ -7,9 +7,21 @@ from funtions import run, runrealtime, toString
 from install_packages import install
 from scrape import get_search_results
 from terminal import get_terminal_size
+
+# ASCII color codes
+GREEN = '\033[92m'
+GRAY = '\033[90m'
+CYAN = '\033[36m'
+RED = '\033[31m'
+YELLOW = '\033[33m'
+END = '\033[0m'
+UNDERLINE = '\033[4m'
+BOLD = '\033[1m'
+
 ########################################
 # Get file type by knowing its extension
 ########################################
+
 
 def get_language(file_path):
     if file_path.endswith(".py"):
@@ -41,11 +53,11 @@ def get_error_message(file):
             er = re.search('\n(?:[ ]+.*\n)*(\w+: .*)', err).groups()
             error = er[0]  # To get first element of tuple consists of errors
             # print(value)
-            print('#'*sizex)  
+            print('#'*sizex)
             print(error)
             print('#'*sizex)
             print('Error...Unable to run file!')
-            # sys.exit()          
+            # sys.exit()
 
         c = input('Do you want to seach web(y/n) :')
         if c == 'y':
@@ -57,8 +69,9 @@ def get_error_message(file):
         print('Only Python is supported...Exiting')
         exit(1)
 
+
 def print_help():
-    print('Help --> Intelligent-Codemate')
+    print('Help --> %sIntelligent-Codemate%s\n' % (BOLD, END))
     print('WELCOME')
     print()
     print('1]   python codemate.py -q what is web-scraping')
@@ -80,7 +93,7 @@ def main():
         print_help()
     elif sys.argv[1].lower() == '-q' or sys.argv[1].lower() == '--query':
         query = ' '.join(sys.argv[2:])
-        
+
         print()
         print('#'*sizex, end='')  # find current teminal width
         print(query.upper())
@@ -88,7 +101,7 @@ def main():
         print()
         # while True:
         get_search_results(query)
-            # print('Do you want to EXIT press ctrl+C')
+        # print('Do you want to EXIT press ctrl+C')
         # search_results, captcha = seach_stackoverflow(query)
 
         # if search_results != []:
@@ -103,6 +116,7 @@ def main():
         if language == ' ':
             sys.stdout.write("\nSorry, Unknown File type...")
         get_error_message(sys.argv[1].lower())
+
 
 if __name__ == "__main__":
     main()

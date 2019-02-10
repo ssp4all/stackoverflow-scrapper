@@ -3,3 +3,4 @@ regex
 BeautifulSoup4
 requests
 keyboard
+termcolor
