@@ -69,7 +69,7 @@ def get_error_message(file):
             exit(1)
     else:
         print('Only Python is supported...Exiting')
-        exit(1)
+        exit(0)
 
 
 def print_help():
@@ -88,10 +88,11 @@ def print_help():
 # Accept file
 ########################################
 
-def main():
-    # Get terminal size
-    sizex, sizey = get_terminal_size()
+# Get terminal size
+sizex, sizey = get_terminal_size()
 
+def main():
+    # Main function here
     if len(sys.argv) == 1 or sys.argv[1].lower() == '-h':
         print_help()
     elif sys.argv[1].lower() == '-q' or sys.argv[1].lower() == '--query':

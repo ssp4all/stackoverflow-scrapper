@@ -5,7 +5,6 @@ import sys
 import time
 from subprocess import PIPE, Popen
 import webbrowser
-# import keyboard
 import requests
 from bs4 import BeautifulSoup
 
@@ -27,8 +26,11 @@ def get_search_results(query):
         #
         URL = 'https://stackoverflow.com'       # Scrape this URL
         SO_URL = "https://stackoverflow.com/search?q="
-
-        response = requests.get(SO_URL+query)
+        try:
+            response = requests.get(SO_URL+query)
+        except ConnectionError:
+            print('No Internet')
+            exit(0)
         soup = BeautifulSoup(response.text, 'html.parser')
 
         search_results = []
