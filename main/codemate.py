@@ -5,19 +5,19 @@ import sys
 
 from funtions import run, runrealtime, toString
 from install_packages import install
-from scrape import get_search_results
+from scrape import *
 from terminal import get_terminal_size
 from termcolor import colored
 # import keyboard
 
 # ASCII color codes
-# GREEN = '\033[92m'
-# GRAY = '\033[90m'
-# CYAN = '\033[36m'
-# RED = '\033[31m'
-# YELLOW = '\033[33m'
-# END = '\033[0m'
-# UNDERLINE = '\033[4m'
+GREEN = '\033[92m'
+GRAY = '\033[90m'
+CYAN = '\033[36m'
+RED = '\033[31m'
+YELLOW = '\033[33m'
+END = '\033[0m'
+UNDERLINE = '\033[4m'
 BOLD = '\033[1m'
 
 ########################################
@@ -103,20 +103,17 @@ def main():
         print(query.upper())
         print('#'*sizex)
         print()
-        # while True:
-        get_search_results(query)
-        # print('Do you want to EXIT press ctrl+C')
-        # search_results, captcha = seach_stackoverflow(query)
+        soup, captcha = search_stackoverflow(query)
+        if captcha:
+            print(colored("\n Sorry, Try again Later",'red'))
+            return
+        # print(soup)
+        get_search_results(soup)
+        
 
-        # if search_results != []:
-        #     if captcha:
-        #         sys.stdout.write("\n Sorry, Try again Later")
-        #         return
-        #     else:
-        #         return #currently Do nothing
     else:
         language = get_language(sys.argv[1].lower())
-        print(language)
+        # print(language)
         if language == ' ':
             sys.stdout.write("\nSorry, Unknown File type...")
         get_error_message(sys.argv[1].lower())

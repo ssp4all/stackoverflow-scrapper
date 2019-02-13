@@ -3,9 +3,6 @@ import random
 import subprocess
 import sys
 
-# from install_packages import toString, runrealtime
-# import install_packages
-
 
 def toString(byte):
     return byte.decode("utf-8").strip()

@@ -7,12 +7,8 @@ import subprocess
 
 
 def get_terminal_size():
-    """ getTerminalSize()
-     - get width and height of console
-     - works on linux,os x,windows,cygwin(windows)
-     originally retrieved from:
-     http://stackoverflow.com/questions/566746/how-to-get-console-window-width-in-python
-    """
+    """ get width and height of console"""
+    
     current_os = platform.system()
     # print(current_os)
     tuple_xy = None
