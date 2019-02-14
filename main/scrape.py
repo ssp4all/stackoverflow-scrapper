@@ -110,7 +110,7 @@ def get_search_results(soup):
             choice = input("Enter post no or 'q' to EXIT: ")
             if choice in ['q', 'Q']:
                 print('Exiting...')
-                sleep(2)
+                time.sleep(2)
                 clear_terminal()
                 exit(0)
         except KeyboardInterrupt:

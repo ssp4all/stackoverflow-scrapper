@@ -74,7 +74,7 @@ def get_error_message(file):
 
 def print_help():
     print()
-    print(colored('%sIntelligent-Codemate','red')%(BOLD))
+    print(colored('%sIntelligent-Codemate Developed by %s@ssp4all','red')%(BOLD, GREEN))
     print(colored('WELCOME','green'))
     print()
     print('1]   python codemate.py -q your_query_here')
