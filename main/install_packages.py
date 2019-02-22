@@ -1,8 +1,6 @@
 # Program to be executed First
 import os
-import subprocess
 import sys
-from os import path
 
 from funtions import run, runrealtime, toString
 
@@ -18,11 +16,11 @@ def install():
         output, error = run(["python3", "-V"])
     if len(error) != 0:
         # python 3 is not installed
-        print('Python installed')
+        print('Python is installed')
         print(toString(output))
         # sys.exit(1)
     else:
-        print("Python3 not installed!")
+        print("Python3 is not installed!")
         print()
 
     #

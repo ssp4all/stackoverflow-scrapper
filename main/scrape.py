@@ -4,7 +4,6 @@ import os
 import sys
 import re
 import time
-from subprocess import PIPE, Popen
 import webbrowser
 import requests
 import random
@@ -50,7 +49,7 @@ def search_stackoverflow(query):
     #               query.replace(' ', '+'))
 
     soup = url_to_soup(SO_URL + query.replace(' ', '+'))
-    if soup == None:
+    if soup is None:
         return (None, True)
     else:
         return (soup, False)
@@ -61,7 +60,7 @@ def get_search_results(soup):
     while True:
         # soup = url_to_soup(url) # pass url to get soup object
     
-        if soup == None:
+        if soup is None:
             print(colored('Unable to fetch data bcoz of CAPTCHA','red'))
             time.sleep(2)
             clear_terminal()
@@ -70,7 +69,7 @@ def get_search_results(soup):
         search_results = []
         posts = soup.find_all(class_="question-summary search-result")
         
-        if posts == None:
+        if posts is None:
             print(colored('No results found','red'))
         i = 1
         for result in posts:

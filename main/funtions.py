@@ -1,8 +1,4 @@
-import re
-import random
 import subprocess
-import sys
-
 
 def toString(byte):
     return byte.decode("utf-8").strip()

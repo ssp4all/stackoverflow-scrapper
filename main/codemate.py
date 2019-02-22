@@ -3,12 +3,10 @@ import os
 import re
 import sys
 
-from funtions import run, runrealtime, toString
-from install_packages import install
+from funtions import runrealtime, toString
 from scrape import *
 from terminal import get_terminal_size
 from termcolor import colored
-# import keyboard
 
 # ASCII color codes
 GREEN = '\033[92m'
@@ -26,6 +24,7 @@ BOLD = '\033[1m'
 
 
 def get_language(file_path):
+    """Returns the language a file is written in."""
     if file_path.endswith(".py"):
         return "python3"
     elif file_path.endswith(".js"):
@@ -34,10 +33,12 @@ def get_language(file_path):
         return "go run"
     elif file_path.endswith(".rb"):
         return "ruby"
+    elif file_path.endswith(".java"):
+        return 'javac'  # Compile Java Source File
     elif file_path.endswith(".class"):
-        return "java"
+        return 'java'  # Run Java Class File
     else:
-        return ' '  # Unknown filetype
+        return ''  # Unknown language
 
 
 ########################################
@@ -113,7 +114,6 @@ def main():
 
     else:
         language = get_language(sys.argv[1].lower())
-        # print(language)
         if language == ' ':
             sys.stdout.write("\nSorry, Unknown File type...")
         get_error_message(sys.argv[1].lower())
