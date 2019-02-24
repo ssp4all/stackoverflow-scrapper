@@ -3,10 +3,13 @@ import os
 import re
 import sys
 
+from termcolor import colored
+
+from execution import execute
 from funtions import runrealtime, toString
+from get_error import get_error_message
 from scrape import *
 from terminal import get_terminal_size
-from termcolor import colored
 
 # ASCII color codes
 GREEN = '\033[92m'
@@ -39,43 +42,6 @@ def get_language(file_path):
         return 'java'  # Run Java Class File
     else:
         return ''  # Unknown language
-
-
-########################################
-# Extract error
-########################################
-def get_error_message(file):
-    if get_language(file) == 'python3':
-        print("Checking for the error in the "+file+"...")
-        output, error = runrealtime(
-            ["python", os.path.join(sys.path[0], file)])
-        if len(error) == 0:
-            print('Done, Good to GO!')
-        else:
-            err = toString(error)
-            error = err.split('\n')[-1].strip()
-            # er = re.search('\n(?:[ ]+.*\n)*(\w+: .*)', err).groups()
-            # error = er[0]  # To get first element of tuple consists of errors
-            # print(value)
-            print('#'*sizex)
-            print(error)
-            print('#'*sizex)
-            print('Error...Unable to run file!')
-            # sys.exit()
-
-        c = input('Do you want to seach web(y/n) :')
-        if c == 'y':
-            soup, captcha = search_stackoverflow(error)
-            if captcha:
-                print(colored("\n Sorry, Try again Later", 'red'))
-                return
-            get_search_results(soup)
-        else:
-            print('Exiting....')
-            exit(1)
-    else:
-        print('Only Python is supported...Exiting')
-        exit(0)
 
 
 def print_help():
@@ -113,7 +79,6 @@ def main():
         if captcha:
             print(colored("\n Sorry, Try again Later",'red'))
             return
-        # print(soup)
         get_search_results(soup)
         
 
@@ -121,7 +86,35 @@ def main():
         language = get_language(sys.argv[1].lower())
         if language == ' ':
             sys.stdout.write("\nSorry, Unknown File type...")
-        get_error_message(sys.argv[1].lower())
+
+        file_path = sys.argv[1:]
+        error_msg = get_error_message(file_path, language)
+        
+        if error_msg != None:
+           
+            # Fix language compiler command
+            language = 'java' if language == 'javac' else language
+            query = "%s %s" % (language, error_msg)
+            soup, captcha = search_stackoverflow(query)
+
+            if soup is not None:
+                if captcha:
+                    print("\n%s%s%s" % (
+                        RED, "Sorry, Stack Overflow blocked our request. Try again in a minute.\n", END))
+                    return
+                c = input('Do you want to seach web(y/n) :')
+                if c == 'y':
+                    get_search_results(soup)
+                else:
+                    print('Exiting....')
+                    exit(1)
+            #     elif confirm("\nDisplay Stack Overflow results?"):
+            #         App(search_results)  # Opens interface
+            else:
+                print("\n%s%s%s" %
+                      (RED, "No Stack Overflow results found.\n", END))
+        else:
+            print("\n%s%s%s" % (CYAN, "No error detected :)\n", END))
 
 
 if __name__ == "__main__":

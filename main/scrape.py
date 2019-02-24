@@ -66,16 +66,12 @@ def get_search_results(soup):
             exit(1)
         
         search_results = []
-        try:
-            posts = soup.find_all(class_="question-summary search-result")
-        except AttributeError:
-            print(colored('No results found', 'red'))
+        posts = soup.find_all(class_="question-summary search-result")
+        if posts is None:
+            print(colored('No results found','red'))
             time.sleep(2)
             clear_terminal()
             sys.exit(1)
-
-        if posts is None:
-            print(colored('No results found','red'))
         i = 1
         for result in posts:
             title = result.find(
