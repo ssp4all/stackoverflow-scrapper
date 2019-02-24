@@ -53,8 +53,9 @@ def get_error_message(file):
             print('Done, Good to GO!')
         else:
             err = toString(error)
-            er = re.search('\n(?:[ ]+.*\n)*(\w+: .*)', err).groups()
-            error = er[0]  # To get first element of tuple consists of errors
+            error = err.split('\n')[-1].strip()
+            # er = re.search('\n(?:[ ]+.*\n)*(\w+: .*)', err).groups()
+            # error = er[0]  # To get first element of tuple consists of errors
             # print(value)
             print('#'*sizex)
             print(error)
@@ -64,7 +65,11 @@ def get_error_message(file):
 
         c = input('Do you want to seach web(y/n) :')
         if c == 'y':
-            get_search_results(error)
+            soup, captcha = search_stackoverflow(error)
+            if captcha:
+                print(colored("\n Sorry, Try again Later", 'red'))
+                return
+            get_search_results(soup)
         else:
             print('Exiting....')
             exit(1)

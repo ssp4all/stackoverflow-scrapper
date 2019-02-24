@@ -1,4 +1,4 @@
 #File containing error
 # print(hello Error here)
 
-print('add'+2)
+print 'add'+2

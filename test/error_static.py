@@ -1,7 +1,7 @@
 # extract error using python script
 
 import re
-sample = '''\
+sample = '''
 Traceback (most recent call last):
     File "sample.py", line 1, in <module>
         hello 
@@ -11,4 +11,6 @@ NameError: name 'hello' is not defined
 error = re.search(
     r'Traceback \(most recent call last\):\n(?:[ ]+.*\n)*(\w+: .*)', sample).groups()
 
-print(error[0])
+# print(error[0])
+x = sample.split('\n')[-3].strip() #Without regex
+print(x)
