@@ -79,7 +79,7 @@ def main():
         if captcha:
             print(colored("\n Sorry, Try again Later",'red'))
             return
-        get_search_results(soup)
+        search_result = get_search_results(soup)
         
 
     else:
