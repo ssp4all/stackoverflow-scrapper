@@ -1,3 +1,6 @@
+""" 
+This file contains all utility functions!
+"""
 import subprocess
 
 def toString(byte):
