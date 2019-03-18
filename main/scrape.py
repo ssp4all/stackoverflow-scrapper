@@ -19,7 +19,7 @@ from user_agents import user_agents
 sizex, sizey = get_terminal_size()  # Get current terminal width
 
 URL = 'https://stackoverflow.com'   # Scrape this URL
-SO_URL = "https://stackoverflow.com/search?q="
+# SO_URL = "https://stackoverflow.com/search?q="
 
 
 ########################################
@@ -28,12 +28,12 @@ SO_URL = "https://stackoverflow.com/search?q="
 
 def url_to_soup(url):
     """Convert URL to soup object"""
-    
+    # print(url)
     try:
         html = requests.get(
             url, headers={"User-Agent": random.choice(user_agents())})
     except requests.exceptions.RequestException:
-        print(colored("Unable to fetch results...\nPlease check your Internet!",'red', attrs=['bold']))
+        print(colored("\nUnable to fetch results...\nPlease check your Internet!",'red', attrs=['reverse']))
         clear_terminal()
         sys.exit(1)
 
@@ -44,9 +44,9 @@ def url_to_soup(url):
 
 def search_stackoverflow(query):
     """Generate URL then convert it to soup"""
-    
-    soup = url_to_soup(SO_URL + "/search?pagesize=50&q=%s" %
-                  query.replace(' ', '+'))
+    url = URL + "/search?pagesize=50&q=%s" %query.replace(' ', '+')
+    # print(url)
+    soup = url_to_soup(url)
     # soup = url_to_soup(SO_URL + query.replace(' ', '+'))
     if soup is None:
         return (None, True)
@@ -58,10 +58,11 @@ def search_stackoverflow(query):
 def get_search_results(soup):
     """Returns a list of dictionaries containing each search result."""
     search_results = []
-
+    
     for result in soup.find_all("div", class_="question-summary search-result"):
         title_container = result.find_all(
             "div", class_="result-link")[0].find_all("a")[0]
+        # print(result)
 
         if result.find_all("div", class_="status answered") != []:  # Has answers
             answer_count = int(result.find_all("div", class_="status answered")[
@@ -76,11 +77,10 @@ def get_search_results(soup):
         search_results.append({
             "Title": title_container["title"],
             "Answers": answer_count,
-            "URL": SO_URL + title_container["href"]
+            "URL": URL + title_container["href"]
         })
 
-        print('search_results')
-
+    # print(search_results)
     return search_results
 
 
@@ -119,7 +119,6 @@ def stylize_code(soup):
 def get_question_and_answers(url):
     """Returns details about a given question and list of its answers."""
     soup = url_to_soup(url)
-
     if soup == None:  # Captcha page
         return "Sorry, Stack Overflow blocked our request. Try again in a couple seconds.", "", "", ""
     else:

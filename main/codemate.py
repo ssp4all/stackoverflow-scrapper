@@ -11,6 +11,7 @@ from get_error import get_error_message
 from logo import logo
 from scrape import *
 from terminal import get_terminal_size
+from urwid.widget import (BOX, FLOW, FIXED)
 
 # Get terminal size
 sizex, sizey = get_terminal_size()
@@ -69,6 +70,7 @@ def main():
             query = "%s %s" % (language, error_msg)
             soup, captcha = search_stackoverflow(query)
             search_results = get_search_results(soup)
+            
             if search_results != []:
                 if captcha:
                     print(colored("\nSorry, Stack Overflow blocked our request. Try again in a minute.\n", 'red', attrs=['reverse']))
