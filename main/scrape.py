@@ -1,17 +1,21 @@
-# This file will scrape Stake Overflow site for given query
+# This file will scrape Stack Overflow site for a given query
 
 import os
-import sys
+import random
 import re
+import sys
 import time
 import webbrowser
+
 import requests
-import random
+import urwid
 from bs4 import BeautifulSoup
 from termcolor import colored
+
+from funtions import clear_terminal
 from terminal import get_terminal_size
 from user_agents import user_agents
-from funtions import clear_terminal
+
 sizex, sizey = get_terminal_size()  # Get current terminal width
 
 URL = 'https://stackoverflow.com'   # Scrape this URL
@@ -75,135 +79,70 @@ def get_search_results(soup):
             "URL": SO_URL + title_container["href"]
         })
 
+        print('search_results')
+
     return search_results
 
-# def get_search_results(soup):
-    # """Returns a list containing each search result."""
-    
-    # while True:
-    
-    #     if soup is None:
-    #         print(colored('Unable to fetch data bcoz of CAPTCHA','red'))
-    #         time.sleep(2)
-    #         clear_terminal()
-    #         exit(1)
-        
-    #     search_results = []
-    #     posts = soup.find_all(class_="question-summary search-result")
-    #     if posts is None:
-    #         print(colored('No results found','red'))
-    #         time.sleep(2)
-    #         clear_terminal()
-    #         sys.exit(1)
-    #     i = 1
-    #     for result in posts:
-    #         title = result.find(
-    #             class_="result-link").get_text().replace('\n', '')
-    #         title_link = result.find(class_="result-link").find('a')['href']
 
-    #         ans_status = ''
-    #         if (result.find(class_="status answered")) != None:  # Has answers
-    #             answer_count = int(result.find(
-    #                 class_="status answered").find("strong").get_text())
-    #             ans_status = 'NOT ACCEPTED'
-    #         # Has an accepted answer (closed)
-    #         elif result.find(class_="status answered-accepted") != None:
-    #             answer_count = int(result.find(
-    #                 class_="status answered-accepted").find("strong").get_text())
-    #             ans_status = 'ACCEPTED'
-    #         else:  # No answers
-    #             answer_count = 0
+def stylize_code(soup):
+    """Identifies and stylizes code in a question or answer."""
+    # TODO: Handle blockquotes and markdown
+    stylized_text = []
+    code_blocks = [block.get_text() for block in soup.find_all("code")]
+    blockquotes = [block.get_text() for block in soup.find_all("blockquote")]
+    newline = False
 
-    #         # Print content
-    #         print('-'*sizex)   #find current teminal width
-    #         print(i, end='  ')
-    #         # print('  ', end='')
-    #         print(title.strip())
-    #         print('-'*sizex)
-    #         print("ANS-COUNT : ", sep=" ", end="")
-    #         print(answer_count, sep=' ', end='  ')
-    #         print(ans_status)
-    #         # print(URL + title_link)
-    #         i += 1
-    #         search_results.append(URL + title_link)
+    for child in soup.recursiveChildGenerator():
+        name = getattr(child, "name", None)
 
-    #     # Get post number
-    #     print()
-    #     try:
-    #         choice = input("Enter post no or 'q' to EXIT: ")
-    #         if choice in ['q', 'Q']:
-    #             print('Exiting...')
-    #             time.sleep(2)
-    #             clear_terminal()
-    #             exit(0)
-    #     except KeyboardInterrupt:
-    #         print("Exiting...")
-    #         clear_terminal()
-    #         exit(1)
-    #     except ValueError:
-    #         print('Invalid Input')
-    #     except EOFError:
-    #         print('Exiting...')
-    #         clear_terminal()
-    #         exit(1)
-        
-    #     # Scrape particular post
-    #     try:
-    #         post_no = search_results[int(choice)-1]
-    #     except IndexError:
-    #         print('Invalid Input')
-    #         time.sleep(2)
-    #         continue
-    #     except ValueError:
-    #         print('Enter interger only!')
-    #         time.sleep(2)
-    #         continue
-            
-    #     new_url = post_no
-    #     new_response = requests.get(new_url)
-    #     new_soup = BeautifulSoup(new_response.text, 'html.parser')
+        if name is None:  # Leaf (terminal) node
+            if child in code_blocks:
+                if newline:  # Code block
+                    #if code_blocks.index(child) == len(code_blocks) - 1: # Last code block
+                        #child = child[:-1]
+                    stylized_text.append(("code", u"\n%s" % str(child)))
+                    newline = False
+                else:  # In-line code
+                    stylized_text.append(("code", u"%s" % str(child)))
+            else:  # Plaintext
+                newline = child.endswith('\n')
+                stylized_text.append(u"%s" % str(child))
 
-    #     new_title = new_soup.find(class_='grid--cell fs-headline1 fl1 ow-break-word').get_text().replace('\n', '')
-    #     print()
+    if type(stylized_text[-2]) == tuple:
+        # Remove newline from questions/answers that end with a code block
+        if stylized_text[-2][1].endswith('\n'):
+            stylized_text[-2] = ("code", stylized_text[-2][1][:-1])
 
-    #     print('#'*sizex)
-    #     print(new_title)
-    #     print('#'*sizex, end="\n\n")
+    return urwid.Text(stylized_text)
 
-    #     # post_bodies = new_soup.find_all(class_ = 'post-text')
-    #     post_body = new_soup.find(class_='answer')
-    #     # post_body = new_soup.find(class_='post-text')
 
-    #     try:
-    #         pbody = post_body.find_all(['p','code'])  # find all p
-            
-    #         for p in pbody:
-    #             print(p.get_text().strip())
-    #             print()
-    #     except AttributeError:
-    #         print('This Question has NO solution, Try again!')
-    #         time.sleep(2)
-    #         continue
+def get_question_and_answers(url):
+    """Returns details about a given question and list of its answers."""
+    soup = url_to_soup(url)
 
-    #     pvote = post_body.find(
-    #         class_='js-vote-count grid--cell fc-black-500 fs-title grid fd-column ai-center').get_text()
-    #     print()
-    #     print('*'*sizex, end='')
-    #     print("*    VOTES : ", end='')
-    #     print(pvote+"   *")
+    if soup == None:  # Captcha page
+        return "Sorry, Stack Overflow blocked our request. Try again in a couple seconds.", "", "", ""
+    else:
+        question_title = soup.find_all(
+            'a', class_="question-hyperlink")[0].get_text()
+        question_stats = soup.find(
+            "div", class_="js-vote-count").get_text()  # Vote count
 
-    #     print('*'*sizex)
-    #     print('1. EXIT (q)')
-    #     print('2. Open in Browser (b)')
-    #     print('3. Continue (y)')
-    #     ch = input()
+        try:
+            question_stats = question_stats + " Votes | " + '|'.join((((soup.find_all("div", class_="module question-stats")[0].get_text())
+                                                                       .replace('\n', ' ')).replace("     ", " | ")).split('|')[:2])  # Vote count, submission date, view count
+        except IndexError:
+            question_stats = "Could not load statistics."
 
-    #     if ch in ['q', 'Q', 'n']:
-    #         print('\nExiting....')
-    #         clear_terminal()
-    #         exit(0)
-    #     elif ch in ['b', 'B']:
-    #         webbrowser.open(new_url)
-    #         continue
-    #     else:
-    #         clear_terminal()
+        question_desc = stylize_code(soup.find_all(
+            "div", class_="post-text")[0])  # TODO: Handle duplicates
+        question_stats = ' '.join(question_stats.split())
+
+        answers = [stylize_code(answer) for answer in soup.find_all(
+            "div", class_="post-text")][1:]
+        if len(answers) == 0:
+            answers.append(urwid.Text(
+                ("no answers", u"\nNo answers for this question.")))
+
+        return question_title, question_desc, question_stats, answers
+

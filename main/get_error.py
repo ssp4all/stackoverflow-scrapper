@@ -2,7 +2,7 @@ from execution import execute
 
 
 def get_error_message(file_path, language):
-    """Gives error message after execution"""
+    """Gives the error message after execution"""
 
     if language == 'java':
         file_path = [f.replace('.class', '') for f in file_path]
