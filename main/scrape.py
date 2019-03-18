@@ -29,7 +29,8 @@ def url_to_soup(url):
         html = requests.get(
             url, headers={"User-Agent": random.choice(user_agents())})
     except requests.exceptions.RequestException:
-        print(colored("Unable to fetch results...\nPlease check your Internet!",'red'))
+        print(colored("Unable to fetch results...\nPlease check your Internet!",'red', attrs=['bold']))
+        clear_terminal()
         sys.exit(1)
 
     if re.search("\.com/nocaptcha", html.url):  # URL is a captcha page
@@ -42,12 +43,12 @@ def search_stackoverflow(query):
     
     soup = url_to_soup(SO_URL + "/search?pagesize=50&q=%s" %
                   query.replace(' ', '+'))
-
     # soup = url_to_soup(SO_URL + query.replace(' ', '+'))
     if soup is None:
         return (None, True)
     else:
         return (soup, False)
+
 
 
 def get_search_results(soup):
@@ -70,8 +71,6 @@ def get_search_results(soup):
 
         search_results.append({
             "Title": title_container["title"],
-            #"Body": result.find_all("div", class_="excerpt")[0].text,
-            #"Votes": int(result.find_all("span", class_="vote-count-post ")[0].find_all("strong")[0].text),
             "Answers": answer_count,
             "URL": SO_URL + title_container["href"]
         })

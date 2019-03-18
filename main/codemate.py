@@ -4,28 +4,16 @@ import re
 import sys
 
 from termcolor import colored
-
+from logo import logo
 from execution import execute
 from funtions import runrealtime, toString
 from get_error import get_error_message
 from scrape import *
 from terminal import get_terminal_size
 
-# ASCII color codes
-GREEN = '\033[92m'
-GRAY = '\033[90m'
-CYAN = '\033[36m'
-RED = '\033[31m'
-YELLOW = '\033[33m'
-END = '\033[0m'
-UNDERLINE = '\033[4m'
-BOLD = '\033[1m'
-
 ########################################
 # Get file type by knowing its extension
 ########################################
-
-
 def get_language(file_path):
     """Returns the language a file is written in."""
     if file_path.endswith(".py"):
@@ -45,15 +33,16 @@ def get_language(file_path):
 
 
 def print_help():
+    logo()
     print()
-    print(colored('%sIntelligent-Codemate Developed by %s@ssp4all','red')%(BOLD, GREEN))
-    print(colored('WELCOME','green'))
+    print(colored('Intelligent-Codemate Developed by @ssp4all','yellow', attrs=['reverse', 'bold']))
     print()
-    print('1]   python codemate.py -q your_query_here')
+    print(colored('Try following commands...', 'green', attrs=['underline']))
     print()
-    print('2]   python codemate.py your_file.py')
+    print('$   python codemate.py -q your_query_here')
     print()
-    print('3]   python codemate.py')
+    print('$   python codemate.py your_file.py')
+    print()
 
 
 ########################################
@@ -77,8 +66,9 @@ def main():
         print()
         soup, captcha = search_stackoverflow(query)
         if captcha:
-            print(colored("\n Sorry, Try again Later",'red'))
-            return
+            print(colored("\n Sorry, Try again Later",'red', attrs=['bold']))
+            clear_terminal()
+            sys.exit(0)
         search_result = get_search_results(soup)
         
 
