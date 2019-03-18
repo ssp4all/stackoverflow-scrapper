@@ -1,7 +1,10 @@
 """ 
 This file contains all utility functions!
 """
+import os
 import subprocess
+import time
+
 
 def toString(byte):
     return byte.decode("utf-8").strip()
@@ -22,3 +25,11 @@ def runrealtime(args):
         print(output)
 
     return process.communicate()
+
+def clear_terminal():
+    """Clear terminal """
+    time.sleep(3)
+    if os.name != 'nt':
+        os.system("clear")
+    else:
+        os.system("cls")

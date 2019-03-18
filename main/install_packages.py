@@ -3,14 +3,14 @@ import os
 import sys
 from termcolor import colored
 
-from funtions import run, runrealtime, toString
+from funtions import run, runrealtime, toString, clear_terminal
 from loader import loader
-
+from logo import logo
 
 def install():
     """Checking for python version 3 """
     print()
-    print(colored("Checking if Python installed...", 'blue', attrs=['reverse']))
+    print(colored("Checking if Python installed...", 'white', attrs=['reverse']))
     if os.name == 'nt':
         output, error = run(["python", "-V"])
     else:
@@ -31,8 +31,8 @@ def install():
     #
     # checking if pip installed
     #
-    print(colored("Checking if PIP installed...", 'blue', attrs=['reverse']))
-    output, error = run(["pip3", "-V"])
+    print(colored("Checking if PIP installed...", 'white', attrs=['reverse']))
+    output, error = run(["sudo","pip3", "-V"])
     res = len(error)
     if res != 0:
         # pip not installed
@@ -45,55 +45,65 @@ def install():
         print(colored("PIP is installed", 'green', attrs=['bold']))
         print()
 
-    #
+    
     # Upgrade setuptools and wheel
+    
+    print(colored("Upgrading setuptools and wheel...", 'white', attrs=['reverse']))
+    if os.name == 'nt':
+        output, error = runrealtime(
+            ["sudo", "python", "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
+
+    else:
+        output, error = runrealtime(
+            ["sudo", "-H", "python3", "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
+    res = len(error)
+    if res != 0:
+        loader(res)
+        print(toString(error))
+        sys.exit(1)
+    else:
+        loader(res)
     #
-    # print("upgrading setuptools and wheel...")
-    # if os.name == 'nt':
-    #     output, error = runrealtime(
-    #         ["python", "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
-
-    # else:
-    #     output, error = runrealtime(
-    #         ["python3", "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
-    # if len(error) != 0:
-    #     print(toString(error))
-    #     sys.exit(1)
-
-    # #
-    # # install packages from requirement.txt
-    # #
-    # print()
-    # print("Checking for requirement file...")
+    # install packages from requirement.txt
+    #
+    print()
+    print(colored("Checking for requirement file...", 'white', attrs=['reverse']))
     
-    # if os.name == 'nt':
-    #     here = path.abspath(path.dirname(__file__))
-    #     p = here + "/requirements.txt"
-    # else:
-    #     p = sys.path[0]+'/requirements.txt'  # path for req. file(linux)
+    if os.name == 'nt':
+        here = path.abspath(path.dirname(__file__))
+        p = here + "/requirements.txt"
+    else:
+        p = sys.path[0]+'/requirements.txt'  # path for req. file(linux)
     
-    # try:
-    #     print("Installing required packages...")
-    #     if os.name == 'nt':
-    #         output, error = runrealtime(
-    #             ["pip3", "install", "-r", p])
-    #     else:
-    #         output, error = runrealtime(
-    #             ["pip3", "install", "-r", p])
+    try:
+        print(colored("Installing required packages...", 'white', attrs=['reverse']))
+        if os.name == 'nt':
+            output, error = runrealtime(
+                ["pip3", "install", "-r", p])
+        else:
+            output, error = runrealtime(
+                ["pip3", "install", "-r", p])
+        res = len(error)
+        if res == 0:
+            loader(res)
+            print(colored('Done, Good to GO!', 'green', attrs=['bold']))
+            clear_terminal()
 
-    #     if len(error) == 0:
-    #         print('Done, Good to GO!')
-    #     else:
-    #         print(toString(error))
-    #         print()
-    #         print('Error...Unable to Download packages!')
-    #         exit(0)
-    # # else:
-    # except FileNotFoundError:
-    #     print('Requirement File not found - Check directory!')
-    #     print()
-    #     print('Incomplete Requirements...Exiting!')
-    #     exit(0)
+        else:
+            loader(res)
+            print(toString(error))
+            print()
+            print(colored('Error...Unable to Download packages!', 'red', attrs=['bold']))
+            clear_terminal()
+            exit(0)
+    # else:
+    except FileNotFoundError:
+        print(colored('Requirement File not found - Check directory!', 'red', attrs=['red']))
+        print()
+        print(colored('Incomplete Requirements...Exiting!', 'red', attrs=['reverse']))
+        clear_terminal()
+        exit(0)
 
 if __name__ == "__main__":
+    logo()
     install()

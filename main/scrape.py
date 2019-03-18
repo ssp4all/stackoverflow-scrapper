@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 from termcolor import colored
 from terminal import get_terminal_size
 from user_agents import user_agents
-
+from funtions import clear_terminal
 sizex, sizey = get_terminal_size()  # Get current terminal width
 
 URL = 'https://stackoverflow.com'   # Scrape this URL
@@ -21,12 +21,6 @@ SO_URL = "https://stackoverflow.com/search?q="
 ########################################
 # Logic to scrape
 ########################################
-def clear_terminal():
-    """Clear terminal """
-    if os.name != 'nt':
-        os.system("clear")
-    else:
-        os.system("cls")    
 
 def url_to_soup(url):
     """Convert URL to soup object"""
