@@ -10,11 +10,8 @@ from funtions import *
 from get_error import get_error_message
 from logo import logo
 from scrape import *
-from terminal import get_terminal_size
 from urwid.widget import (BOX, FLOW, FIXED)
-
-# Get terminal size
-sizex, sizey = get_terminal_size()
+from animals import print_animal
 
 
 # Scroll actions
@@ -34,6 +31,7 @@ def main():
     # Main function here
     search_results = []
     if len(sys.argv) == 1 or sys.argv[1].lower() == '-h':
+        clear_terminal()
         print_help()
     elif sys.argv[1].lower() == '-q' or sys.argv[1].lower() == '--query':
         query = ' '.join(sys.argv[2:])
@@ -48,13 +46,19 @@ def main():
                 if captcha:
                     print(colored(
                         "\nSorry, Stack Overflow blocked our request. Try again in a minute.\n", 'red', attrs=['reverse']))
-                    return
+                    clear_terminal()
+                    sys.exit(1)
                 else:
-                    if confirm("\nDisplay Stack Overflow results?"):
-                        App(search_results)  # Opens interface
-                    else:
-                        print(colored("\nNo Stack Overflow results found.\n", 'red', attrs=['reverse']))
-        
+                    print_animal()
+                    clear_terminal()
+                    App(search_results)  # Opens interface
+        else:
+
+            print(colored("\nNo Stack Overflow results found.\nPlease try other keywords!",
+                              'red', attrs=['reverse']))
+            clear_terminal()
+            sys.exit(0)
+
     else:
         language = get_language(sys.argv[1].lower())
         if language == ' ':

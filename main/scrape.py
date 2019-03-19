@@ -13,14 +13,9 @@ from bs4 import BeautifulSoup
 from termcolor import colored
 
 from funtions import clear_terminal
-from terminal import get_terminal_size
 from user_agents import user_agents
 
-sizex, sizey = get_terminal_size()  # Get current terminal width
-
 URL = 'https://stackoverflow.com'   # Scrape this URL
-# SO_URL = "https://stackoverflow.com/search?q="
-
 
 ########################################
 # Logic to scrape
@@ -80,7 +75,6 @@ def get_search_results(soup):
             "URL": URL + title_container["href"]
         })
 
-    # print(search_results)
     return search_results
 
 

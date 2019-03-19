@@ -7,3 +7,4 @@ termcolor
 yaspin
 py-term
 pyfiglet
+cowsay
