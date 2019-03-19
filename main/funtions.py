@@ -7,15 +7,6 @@ import time
 from termcolor import colored
 from logo import logo
 
-# ASCII color codes
-GREEN = '\033[92m'
-GRAY = '\033[90m'
-CYAN = '\033[36m'
-RED = '\033[31m'
-YELLOW = '\033[33m'
-END = '\033[0m'
-UNDERLINE = '\033[4m'
-BOLD = '\033[1m'
     
 def toString(byte):
     return byte.decode("utf-8").strip()
@@ -53,7 +44,8 @@ def confirm(question):
     prompt = " [Y/n] "
 
     while True:
-        print(BOLD + CYAN + question + prompt + END)
+        print(colored(question + prompt, 'white', attrs=[
+            'reverse'] ))
         choice = input().lower()
         if choice in valid:
             return valid[choice]

@@ -28,7 +28,7 @@ def url_to_soup(url):
         html = requests.get(
             url, headers={"User-Agent": random.choice(user_agents())})
     except requests.exceptions.RequestException:
-        print(colored("\nUnable to fetch results...\nPlease check your Internet!",'red', attrs=['reverse']))
+        print(colored("\nPlease check your Internet!",'red', attrs=['reverse']))
         clear_terminal()
         sys.exit(1)
 
