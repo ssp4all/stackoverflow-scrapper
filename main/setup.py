@@ -76,6 +76,7 @@ def install():
         p = sys.path[0]+'/requirements.txt'  # path for req. file(linux)
     
     try:
+        loader(0) #succeess
         print(colored("Installing required packages...", 'white', attrs=['reverse']))
         if os.name == 'nt':
             output, error = runrealtime(
@@ -98,6 +99,7 @@ def install():
             exit(0)
     # else:
     except FileNotFoundError:
+        loader(1)#error
         print(colored('Requirement File not found - Check directory!', 'red', attrs=['red']))
         print()
         print(colored('Incomplete Requirements...Exiting!', 'red', attrs=['reverse']))

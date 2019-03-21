@@ -24,11 +24,10 @@ def runrealtime(args):
     
     while process.poll() is None:
         output = process.stdout.readline().decode("utf-8").strip()
-        # print(output)
     return process.communicate()
 
 def clear_terminal():
-    """Clear terminal """
+    """Clears the terminal """
     time.sleep(3)
     if os.name != 'nt':
         os.system("clear")
@@ -56,9 +55,10 @@ def print_help():
     logo()
     print(colored('\nIntelligent-Codemate Developed by @ssp4all\n',
                   'yellow', attrs=['reverse', 'bold']))
-    print(colored('\nTry following commands...', 'green', attrs=['underline']))
-    print('\n$   python codemate.py -q your_query_here')
-    print('\n$   python codemate.py your_file.py\n')
+    print(colored('\nTry following commands...', 'green', attrs=['reverse']))
+    print(colored('\n$   python codemate.py -f your_query_here', 'white'))
+    print(colored('\n$   python codemate.py -q your_query_here', 'white'))
+    print(colored('\n$   python codemate.py your_file.py\n', 'white'))
 
 
 def get_language(file_path):
