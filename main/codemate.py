@@ -13,14 +13,16 @@ from get_error import get_error_message
 from logo import logo
 from scrape import *
 from ScrollBar import ScrollBar
-
+from faster_query import faster_query
 
 def main():
     # Main function here
     search_results = []
+    
     if len(sys.argv) == 1 or sys.argv[1].lower() == '-h':
         clear_terminal()
         print_help()
+    
     elif sys.argv[1].lower() == '-q' or sys.argv[1].lower() == '--query':
         query = ' '.join(sys.argv[2:])
 
@@ -47,6 +49,10 @@ def main():
             clear_terminal()
             sys.exit(0)
 
+    elif sys.argv[1].lower() == '-f':
+        query = ' '.join(sys.argv[2:])
+        faster_query(query)
+    
     else:
         language = get_language(sys.argv[1].lower())
         if language == ' ':

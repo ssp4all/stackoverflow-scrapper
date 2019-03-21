@@ -24,8 +24,7 @@ def runrealtime(args):
     
     while process.poll() is None:
         output = process.stdout.readline().decode("utf-8").strip()
-        print(output)
-
+        # print(output)
     return process.communicate()
 
 def clear_terminal():

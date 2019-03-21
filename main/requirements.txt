@@ -8,3 +8,4 @@ yaspin
 py-term
 pyfiglet
 cowsay
+howdoi
