@@ -10,7 +10,7 @@ from logo import logo
 def install():
     """Checking for python version 3 """
     print()
-    print(colored("Checking if Python installed...", 'white', attrs=['reverse']))
+    print(colored("Checking if Python is installed...", 'white', attrs=['reverse']))
     if os.name == 'nt':
         output, error = run(["python", "-V"])
     else:
@@ -31,13 +31,13 @@ def install():
     #
     # checking if pip installed
     #
-    print(colored("Checking if PIP installed...", 'white', attrs=['reverse']))
+    print(colored("Checking if PIP is installed...", 'white', attrs=['reverse']))
     output, error = run(["sudo","pip3", "-V"])
     res = len(error)
     if res != 0:
         # pip not installed
         loader(res)
-        print(colored("PIP not installed", 'red', attrs=['bold']))
+        print(colored("PIP is not installed", 'red', attrs=['bold']))
         print()
     else:
         # pip is installed. proceed further.
