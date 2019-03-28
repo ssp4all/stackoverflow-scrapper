@@ -8,15 +8,15 @@ from termcolor import colored
 from animals import print_animal
 from App import App
 from execution import execute
+from faster_query import faster_query
 from funtions import *
 from get_error import get_error_message
 from logo import logo
 from scrape import *
-from ScrollBar import ScrollBar
-from faster_query import faster_query
+from ScrollBar import *
+
 
 def main():
-    # Main function here
     search_results = []
     
     if len(sys.argv) == 1 or sys.argv[1].lower() == '-h':

@@ -39,7 +39,7 @@ def url_to_soup(url):
 
 def search_stackoverflow(query):
     """Generate URL then convert it to soup"""
-    url = URL + "/search?pagesize=50&q=%s" %query.replace(' ', '+')
+    url = URL + "/search?pagesize=10&q=%s" %query.replace(' ', '+')
     # print(url)
     soup = url_to_soup(url)
     # soup = url_to_soup(SO_URL + query.replace(' ', '+'))
