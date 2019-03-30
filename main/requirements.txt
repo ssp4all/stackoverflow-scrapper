@@ -4,3 +4,8 @@ BeautifulSoup4
 requests
 keyboard
 termcolor
+yaspin
+py-term
+pyfiglet
+cowsay
+howdoi

@@ -10,6 +10,7 @@ def menu(title, choices):
         body.append(urwid.AttrMap(button, None, focus_map='reversed'))
     return urwid.ListBox(urwid.SimpleFocusListWalker(body))
 
+
 def item_chosen(button, choice):
     response = urwid.Text([u'You chose ', choice, u'\n'])
     done = urwid.Button(u'Ok')

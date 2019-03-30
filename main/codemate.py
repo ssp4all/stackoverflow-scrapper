@@ -3,121 +3,89 @@ import os
 import re
 import sys
 
-from funtions import run, runrealtime, toString
-from install_packages import install
-from scrape import *
-from terminal import get_terminal_size
 from termcolor import colored
-# import keyboard
 
-# ASCII color codes
-GREEN = '\033[92m'
-GRAY = '\033[90m'
-CYAN = '\033[36m'
-RED = '\033[31m'
-YELLOW = '\033[33m'
-END = '\033[0m'
-UNDERLINE = '\033[4m'
-BOLD = '\033[1m'
+from animals import print_animal
+from App import App
+from execution import execute
+from faster_query import faster_query
+from funtions import *
+from get_error import get_error_message
+from logo import logo
+from scrape import *
+from ScrollBar import *
 
-########################################
-# Get file type by knowing its extension
-########################################
-
-
-def get_language(file_path):
-    if file_path.endswith(".py"):
-        return "python3"
-    elif file_path.endswith(".js"):
-        return "node"
-    elif file_path.endswith(".go"):
-        return "go run"
-    elif file_path.endswith(".rb"):
-        return "ruby"
-    elif file_path.endswith(".class"):
-        return "java"
-    else:
-        return ' '  # Unknown filetype
-
-
-########################################
-# Extract error
-########################################
-def get_error_message(file):
-    if get_language(file) == 'python3':
-        print("Checking for the error in the "+file+"...")
-        output, error = runrealtime(
-            ["python", os.path.join(sys.path[0], file)])
-        if len(error) == 0:
-            print('Done, Good to GO!')
-        else:
-            err = toString(error)
-            er = re.search('\n(?:[ ]+.*\n)*(\w+: .*)', err).groups()
-            error = er[0]  # To get first element of tuple consists of errors
-            # print(value)
-            print('#'*sizex)
-            print(error)
-            print('#'*sizex)
-            print('Error...Unable to run file!')
-            # sys.exit()
-
-        c = input('Do you want to seach web(y/n) :')
-        if c == 'y':
-            get_search_results(error)
-        else:
-            print('Exiting....')
-            exit(1)
-    else:
-        print('Only Python is supported...Exiting')
-        exit(0)
-
-
-def print_help():
-    print()
-    print(colored('%sIntelligent-Codemate','red')%(BOLD))
-    print(colored('WELCOME','green'))
-    print()
-    print('1]   python codemate.py -q your_query_here')
-    print()
-    print('2]   python codemate.py your_file.py')
-    print()
-    print('3]   python codemate.py')
-
-
-########################################
-# Accept file
-########################################
-
-# Get terminal size
-sizex, sizey = get_terminal_size()
 
 def main():
-    # Main function here
+    search_results = []
+    
     if len(sys.argv) == 1 or sys.argv[1].lower() == '-h':
+        clear_terminal()
         print_help()
+    
     elif sys.argv[1].lower() == '-q' or sys.argv[1].lower() == '--query':
         query = ' '.join(sys.argv[2:])
 
-        print()
-        print('#'*sizex, end='')  # find current teminal width
-        print(query.upper())
-        print('#'*sizex)
-        print()
         soup, captcha = search_stackoverflow(query)
         if captcha:
-            print(colored("\n Sorry, Try again Later",'red'))
-            return
-        # print(soup)
-        get_search_results(soup)
-        
+            print(colored("\n Sorry, Captcha blocked our request", 'red', attrs=['reverse']))
+            clear_terminal()
+            sys.exit(0)
+        search_results = get_search_results(soup)
+        if search_results != []:
+                if captcha:
+                    print(colored(
+                        "\nSorry, Stack Overflow blocked our request. Try again in a minute.\n", 'red', attrs=['reverse']))
+                    clear_terminal()
+                    sys.exit(1)
+                else:
+                    print_animal()
+                    clear_terminal()
+                    App(search_results)  # Opens interface
+        else:
 
+            print(colored("\nNo Stack Overflow results found. Try other keywords!",
+                              'red', attrs=['reverse']))
+            clear_terminal()
+            sys.exit(0)
+
+    elif sys.argv[1].lower() == '-f':
+        query = ' '.join(sys.argv[2:])
+        faster_query(query)
+    
     else:
         language = get_language(sys.argv[1].lower())
-        # print(language)
         if language == ' ':
             sys.stdout.write("\nSorry, Unknown File type...")
-        get_error_message(sys.argv[1].lower())
 
+        file_path = sys.argv[1:]
+        error_msg = get_error_message(file_path, language)
+        
+        if error_msg != None:
+           
+            # Fix language compiler command
+            language = 'java' if language == 'javac' else language
+            query = "%s %s" % (language, error_msg)
+            soup, captcha = search_stackoverflow(query)
+            search_results = get_search_results(soup)
+            
+            if search_results != []:
+                if captcha:
+                    print(colored("\nSorry, Captcha blocked our request.\n", 'red', attrs=['reverse']))
+                    return
+                else:
+                    if confirm("\nDisplay Stack Overflow results?"):
+                        print_animal()
+                        clear_terminal()
+                        App(search_results)  # Opens interface
+            else:
+                print(colored("\nNo Stack Overflow results found.\n", 'red', attrs=['reverse']))
+        else:
+            print(colored("\nNo error detected :)\n", 'cyan', attrs=['reverse']))
+
+
+
+## Main ##
 
 if __name__ == "__main__":
     main()
