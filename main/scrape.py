@@ -14,34 +14,47 @@ from termcolor import colored
 
 from funtions import clear_terminal
 from user_agents import user_agents
-
+from offline_stackoverflow import offline_search
 URL = 'https://stackoverflow.com'   # Scrape this URL
 
 ########################################
 # Logic to scrape
 ########################################
 
-def url_to_soup(url):
+
+def url_to_soup(url, query):
     """Convert URL to soup object"""
     # print(url)
     try:
         html = requests.get(
             url, headers={"User-Agent": random.choice(user_agents())})
     except requests.exceptions.RequestException:
-        print(colored("\nPlease check your Internet!",'red', attrs=['reverse']))
+        print(colored("\nPlease check your Internet!",
+                      'red', 'on_white', attrs=['reverse']))
+        # print(str(query))
+        offline_search(str(query))
+        # if query.find('TypeError') != -1:
+        #     offline_search("python3 TypeError")
+        # elif query.find('IndexError') != -1:
+        #     offline_search("python3 IndexError")
+        # else:
+        #     print(colored("\nUnknown Error!",
+        #               'red', 'on_white', attrs=['reverse']))
+            
         clear_terminal()
-        sys.exit(1)
+        sys.exit(0)
 
     if re.search("\.com/nocaptcha", html.url):  # URL is a captcha page
         return None
     else:
         return BeautifulSoup(html.text, "html.parser")
 
+
 def search_stackoverflow(query):
     """Generate URL then convert it to soup"""
-    url = URL + "/search?pagesize=10&q=%s" %query.replace(' ', '+')
+    url = URL + "/search?pagesize=10&q=%s" % query.replace(' ', '+')
     # print(url)
-    soup = url_to_soup(url)
+    soup = url_to_soup(url, query)
     # soup = url_to_soup(SO_URL + query.replace(' ', '+'))
     if soup is None:
         return (None, True)
@@ -49,11 +62,10 @@ def search_stackoverflow(query):
         return (soup, False)
 
 
-
 def get_search_results(soup):
     """Returns a list of dictionaries containing each search result."""
     search_results = []
-    
+
     for result in soup.find_all("div", class_="question-summary search-result"):
         title_container = result.find_all(
             "div", class_="result-link")[0].find_all("a")[0]
@@ -92,7 +104,7 @@ def stylize_code(soup):
         if name is None:  # Leaf (terminal) node
             if child in code_blocks:
                 if newline:  # Code block
-                    #if code_blocks.index(child) == len(code_blocks) - 1: # Last code block
+                    # if code_blocks.index(child) == len(code_blocks) - 1: # Last code block
                         #child = child[:-1]
                     stylized_text.append(("code", u"\n%s" % str(child)))
                     newline = False
@@ -112,7 +124,7 @@ def stylize_code(soup):
 
 def get_question_and_answers(url):
     """Returns details about a given question and list of its answers."""
-    soup = url_to_soup(url)
+    soup = url_to_soup(url, "")
     if soup == None:  # Captcha page
         return "Sorry, Stack Overflow blocked our request. Try again in a couple seconds.", "", "", ""
     else:
@@ -138,4 +150,3 @@ def get_question_and_answers(url):
                 ("no answers", u"\nNo answers for this question.")))
 
         return question_title, question_desc, question_stats, answers
-
