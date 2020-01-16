@@ -14,20 +14,20 @@
 	<br>
 </h1>
 
+A terminal based tool to improve debugging speed by displaying StackOverflow solutions to the error given by a program on execution.
 
-A python tool to scrape website and to show optmial solution to the error given by program on compiling.
+## Installation
+- Python 3+
+- Install all the modules present in requirements.txt 
+- Execute `pip install -r requirements.txt`
 
-## Work Done 
-* Check for if python(3.0+) and its requirements are installed or not.
-* Scrape site on user request.
-* Regular expression for extracting error from list of error given by program on compiling.
-* Extract error from live program.
-* 
-## To Do
-* Integrate all modules.
-* Design UI on terminal.
-* Edit and design ReadMe.md
-* Make use of pop-up window.
+
+## Execution
+- Execute  on terminal or commandline `codemate.py file_with_bug.py`
+- Press yes or no for debugging
+- Select answer from suggestions
+- A demo can be found on this link https://www.youtube.com/watch?v=FBPdlqg2FEw
+
 
 
 ## License
@@ -36,4 +36,4 @@ A python tool to scrape website and to show optmial solution to the error given 
 
 The MIT License 2017 - [Suraj Pawar](http://github.com/ssp4all/)
 
-Last Updated 10 April 2019
+Last Updated 15 Jan 2020
