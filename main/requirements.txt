@@ -10,6 +10,6 @@ pyfiglet
 cowsay
 howdoi
 html2text==2018.1.9
-scikit-learn==0.20.2
+scikit-learn==1.5.0
 pandas==0.23.0
 nltk==3.4.5
